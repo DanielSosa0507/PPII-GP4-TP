@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import Fenomeno, Validacion
 
-# Register your models here.
+admin.site.register(Fenomeno)
+admin.site.register(Validacion)
