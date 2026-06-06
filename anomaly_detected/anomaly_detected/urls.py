@@ -17,9 +17,14 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import TemplateView  
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', TemplateView.as_view(template_name='landing.html'), name='landing'),
+    path('mapa/', TemplateView.as_view(template_name='mapa.html'), name='mapa'),
+    path('fenomenos-lista/', TemplateView.as_view(template_name='fenomenos_lista.html'), name='fenomenos-lista'),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('api/usuarios/', include('usuarios.urls')),
     path('api/fenomenos/', include('fenomenos.urls')),
     path('api/comentarios/', include('comentarios.urls')),

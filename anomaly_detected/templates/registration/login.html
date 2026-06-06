@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-vh-75;">
+    <div class="col-md-6 col-lg-5">
+        
+        <div class="card p-4 border-0" style="background-color: #1f2833; box-shadow: 0 0 25px rgba(102, 252, 241, 0.2); border-radius: 15px;">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-white mb-2" style="text-shadow: 0 0 10px rgba(102, 252, 241, 0.4);">
+                    🔑 ACCESO RESTRINGIDO
+                </h2>
+                <p class="text-light opacity-75 small">Introduce tus credenciales para acceder a los archivos clasificados.</p>
+            </div>
+
+            {% if form.errors %}
+                <div class="alert alert-danger border-0 small text-center" style="background-color: #ff5555; color: #fff;" role="alert">
+                    ⚠️ Usuario o contraseña incorrectos. Inténtalo de nuevo.
+                </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="id_username" class="form-label text-white small fw-bold">Nombre de Código (Usuario)</label>
+                    <input type="text" name="username" id="id_username" class="form-control bg-dark text-light border-secondary" placeholder="Ej: Agente_Mulder" required style="border-radius: 8px;">
+                </div>
+
+                <div class="mb-4">
+                    <label for="id_password" class="form-label text-white small fw-bold">Clave de Encriptación (Contraseña)</label>
+                    <input type="password" name="password" id="id_password" class="form-control bg-dark text-light border-secondary" placeholder="••••••••" required style="border-radius: 8px;">
+                </div>
+
+                <button type="submit" class="btn w-100 fw-bold py-2" style="background-color: #66fcf1; color: #0b0c10; border-radius: 8px; transition: 0.3s;">
+                    Desencriptar Acceso 🔓
+                </button>
+            </form>
+
+            <div class="text-center mt-4 border-top border-secondary pt-3">
+                <p class="text-light opacity-50 small m-0">¿Eres un nuevo testigo?</p>
+                <a href="#" class="small fw-bold" style="color: #66fcf1; text-decoration: none;">Registrar nueva cuenta</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
