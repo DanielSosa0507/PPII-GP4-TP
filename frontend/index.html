@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anomaly Detected</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
+
+  /* NAV */
+  nav { background: #0d1117; border-bottom: 1px solid #1a3a1a; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 1.3rem; font-weight: bold; color: #4cff72; letter-spacing: 2px; }
+  .logo span { color: #888; font-size: 0.75rem; display: block; letter-spacing: 4px; font-weight: normal; }
+  nav .links a { color: #aaa; text-decoration: none; margin-left: 24px; font-size: 0.9rem; transition: color .2s; }
+  nav .links a:hover, nav .links a.active { color: #4cff72; }
+  .btn { padding: 8px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all .2s; }
+  .btn-primary { background: #1a5c2a; color: #4cff72; border: 1px solid #4cff72; }
+  .btn-primary:hover { background: #4cff72; color: #0a0a0f; }
+  .btn-danger { background: #3a1a1a; color: #ff6b6b; border: 1px solid #ff6b6b; font-size: 0.8rem; padding: 6px 14px; }
+  .btn-sm { padding: 5px 12px; font-size: 0.8rem; }
+
+  /* PAGES */
+  .page { display: none; padding: 32px; max-width: 1100px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 60px 20px 40px; }
+  .hero h1 { font-size: 2.8rem; color: #4cff72; text-shadow: 0 0 30px #4cff7244; margin-bottom: 12px; }
+  .hero p { color: #888; font-size: 1rem; max-width: 500px; margin: 0 auto 28px; }
+
+  /* FILTERS */
+  .filters { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; align-items: center; }
+  .filters select, .filters input { background: #111; border: 1px solid #2a2a2a; color: #ccc; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; }
+  .filters select:focus, .filters input:focus { outline: none; border-color: #4cff72; }
+
+  /* CARDS */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+  .card { background: #0d1117; border: 1px solid #1a2a1a; border-radius: 12px; overflow: hidden; transition: border-color .2s, transform .2s; cursor: pointer; }
+  .card:hover { border-color: #4cff72; transform: translateY(-3px); }
+  .card-img { width: 100%; height: 160px; object-fit: cover; background: #111; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+  .card-body { padding: 16px; }
+  .card-type { font-size: 0.72rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .type-ovni { color: #4cff72; }
+  .type-embrujado { color: #bf7fff; }
+  .type-otro { color: #ff9f43; }
+  .card h3 { font-size: 1rem; margin-bottom: 6px; color: #fff; }
+  .card p { font-size: 0.82rem; color: #777; line-height: 1.5; }
+  .card-footer { padding: 10px 16px; border-top: 1px solid #1a2a1a; display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: #555; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+  .badge-validated { background: #0d2a0d; color: #4cff72; border: 1px solid #1a5c1a; }
+  .badge-pending { background: #2a1a00; color: #ff9f43; border: 1px solid #5c3a00; }
+
+  /* DETALLE */
+  .detail-header { display: flex; gap: 32px; margin-bottom: 32px; flex-wrap: wrap; }
+  .detail-img { width: 320px; height: 200px; background: #111; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 5rem; border: 1px solid #1a2a1a; flex-shrink: 0; }
+  .detail-info { flex: 1; min-width: 250px; }
+  .detail-info h2 { font-size: 1.8rem; color: #fff; margin-bottom: 8px; }
+  .detail-info .meta { color: #555; font-size: 0.83rem; margin-bottom: 16px; }
+  .detail-info p { color: #aaa; line-height: 1.7; margin-bottom: 16px; }
+  .detail-map { background: #0d1117; border: 1px solid #1a2a1a; border-radius: 10px; padding: 16px; margin-bottom: 24px; }
+  .detail-map h4 { color: #4cff72; font-size: 0.85rem; margin-bottom: 8px; }
+  .coords { font-family: monospace; color: #888; font-size: 0.85rem; }
+  .map-placeholder { background: #0a1a0a; border-radius: 8px; height: 160px; display: flex; align-items: center; justify-content: center; color: #2a5a2a; font-size: 0.85rem; border: 1px dashed #1a3a1a; margin-top: 10px; }
+
+  /* COMENTARIOS */
+  .section-title { font-size: 1rem; color: #4cff72; margin-bottom: 16px; border-bottom: 1px solid #1a2a1a; padding-bottom: 8px; }
+  .comment { background: #0d1117; border: 1px solid #1a2a1a; border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; }
+  .comment-user { font-size: 0.8rem; color: #4cff72; margin-bottom: 4px; }
+  .comment-text { font-size: 0.88rem; color: #aaa; }
+  .comment-date { font-size: 0.72rem; color: #444; margin-top: 4px; }
+  .comment-form textarea { width: 100%; background: #111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 12px; color: #ccc; font-size: 0.88rem; resize: vertical; min-height: 80px; }
+  .comment-form textarea:focus { outline: none; border-color: #4cff72; }
+
+  /* VALIDACIONES */
+  .validacion-bar { background: #0d1117; border: 1px solid #1a2a1a; border-radius: 10px; padding: 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 20px; }
+  .val-count { font-size: 2rem; color: #4cff72; font-weight: bold; }
+  .val-label { color: #666; font-size: 0.82rem; }
+
+  /* LOGIN */
+  .auth-container { max-width: 420px; margin: 60px auto; background: #0d1117; border: 1px solid #1a2a1a; border-radius: 14px; padding: 36px; }
+  .auth-container h2 { color: #4cff72; margin-bottom: 6px; }
+  .auth-container p { color: #666; font-size: 0.85rem; margin-bottom: 28px; }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-size: 0.82rem; color: #888; margin-bottom: 6px; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; background: #111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 10px 14px; color: #ccc; font-size: 0.9rem; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #4cff72; }
+  .auth-tabs { display: flex; margin-bottom: 24px; border-bottom: 1px solid #1a2a1a; }
+  .auth-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; color: #555; font-size: 0.88rem; transition: color .2s; border-bottom: 2px solid transparent; }
+  .auth-tab.active { color: #4cff72; border-bottom-color: #4cff72; }
+
+  /* ADMIN PANEL */
+  .admin-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .admin-table th { text-align: left; padding: 10px 14px; color: #4cff72; border-bottom: 1px solid #1a2a1a; font-size: 0.78rem; letter-spacing: 1px; }
+  .admin-table td { padding: 12px 14px; border-bottom: 1px solid #111; color: #aaa; }
+  .admin-table tr:hover td { background: #0d1117; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: #1a5c2a; border: 1px solid #4cff72; color: #4cff72; padding: 12px 20px; border-radius: 8px; font-size: 0.85rem; display: none; z-index: 999; }
+  .toast.show { display: block; }
+
+  .back-btn { color: #4cff72; background: none; border: none; cursor: pointer; font-size: 0.85rem; margin-bottom: 20px; padding: 0; }
+  .back-btn:hover { text-decoration: underline; }
+  .divider { height: 1px; background: #1a2a1a; margin: 24px 0; }
+  .tag { display: inline-block; background: #111; border: 1px solid #2a2a2a; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; color: #888; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">ANOMALY<span>DETECTED</span></div>
+  <div class="links">
+    <a href="#" class="active" onclick="showPage('home')">Fenómenos</a>
+    <a href="#" onclick="showPage('admin')">Admin</a>
+    <a href="#" onclick="showPage('login')">
+      <span id="nav-auth">Iniciar sesión</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ===== HOME ===== -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <h1>ANOMALY DETECTED</h1>
+    <p>Explorá, reportá y validá fenómenos paranormales. Avistamientos de OVNIs y lugares embrujados en un solo lugar.</p>
+    <button class="btn btn-primary" onclick="showPage('nuevo')">+ Reportar fenómeno</button>
+  </div>
+
+  <div class="filters">
+    <select onchange="filtrar(this.value)">
+      <option value="todos">Todos los tipos</option>
+      <option value="ovni">OVNI</option>
+      <option value="embrujado">Lugar embrujado</option>
+      <option value="otro">Otro</option>
+    </select>
+    <input type="text" placeholder="Buscar por título..." oninput="buscar(this.value)">
+  </div>
+
+  <div class="grid" id="fenomenos-grid"></div>
+</div>
+
+<!-- ===== DETALLE ===== -->
+<div class="page" id="page-detalle">
+  <button class="back-btn" onclick="showPage('home')">← Volver a fenómenos</button>
+  <div id="detalle-contenido"></div>
+</div>
+
+<!-- ===== LOGIN ===== -->
+<div class="page" id="page-login">
+  <div class="auth-container">
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchTab('login-form', this)">Iniciar sesión</div>
+      <div class="auth-tab" onclick="switchTab('register-form', this)">Registrarse</div>
+    </div>
+
+    <div id="login-form">
+      <h2>Bienvenido</h2>
+      <p>Ingresá para comentar, validar y reportar fenómenos.</p>
+      <div class="form-group"><label>Usuario</label><input type="text" placeholder="tu_usuario"></div>
+      <div class="form-group"><label>Contraseña</label><input type="password" placeholder="••••••••"></div>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="login()">Ingresar</button>
+    </div>
+
+    <div id="register-form" style="display:none">
+      <h2>Crear cuenta</h2>
+      <p>Sumate a la comunidad paranormal.</p>
+      <div class="form-group"><label>Usuario</label><input type="text" placeholder="tu_usuario"></div>
+      <div class="form-group"><label>Email</label><input type="email" placeholder="email@ejemplo.com"></div>
+      <div class="form-group"><label>Contraseña</label><input type="password" placeholder="••••••••"></div>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="register()">Registrarse</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NUEVO FENÓMENO ===== -->
+<div class="page" id="page-nuevo">
+  <button class="back-btn" onclick="showPage('home')">← Volver</button>
+  <div style="max-width:600px;margin:0 auto;background:#0d1117;border:1px solid #1a2a1a;border-radius:14px;padding:32px">
+    <h2 style="color:#4cff72;margin-bottom:6px">Reportar fenómeno</h2>
+    <p style="color:#666;font-size:.85rem;margin-bottom:24px">Tu reporte será revisado por un administrador antes de publicarse.</p>
+    <div class="form-group"><label>Tipo de fenómeno *</label>
+      <select id="tipo-select" onchange="toggleForma()">
+        <option value="">Seleccionar...</option>
+        <option value="ovni">Avistamiento de OVNI</option>
+        <option value="embrujado">Lugar embrujado</option>
+        <option value="otro">Otro</option>
+      </select>
+    </div>
+    <div class="form-group" id="forma-group" style="display:none"><label>Forma del OVNI *</label>
+      <select>
+        <option>Circle</option><option>Triangle</option><option>Light</option>
+        <option>Disk</option><option>Sphere</option><option>Fireball</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Título *</label><input id="nuevo-titulo" type="text" placeholder="Ej: Avistamiento sobre el Río de la Plata"></div>
+    <div class="form-group"><label>Descripción *</label><textarea id="nuevo-descripcion" style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#ccc;min-height:100px" placeholder="Describí el fenómeno..."></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label>Latitud *</label><input id="nuevo-latitud" type="number" placeholder="-34.6037"></div>
+      <div class="form-group"><label>Longitud *</label><input id="nuevo-longitud" type="number" placeholder="-58.3816"></div>
+    </div>
+    <div class="form-group"><label>Fecha del evento</label><input id="nuevo-fecha" type="date"></div>
+    <div class="form-group"><label>Imagen (opcional)</label><input type="file" style="color:#888"></div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="submitFenomeno()">Enviar para revisión</button>
+  </div>
+</div>
+
+<!-- ===== PANEL ADMIN ===== -->
+<div class="page" id="page-admin">
+  <h2 style="color:#4cff72;margin-bottom:6px">Panel de Administración</h2>
+  <p style="color:#666;font-size:.85rem;margin-bottom:24px">Revisá los fenómenos pendientes de aprobación y moderá comentarios.</p>
+
+  <h4 class="section-title">Fenómenos pendientes</h4>
+  <table class="admin-table">
+    <thead><tr><th>TÍTULO</th><th>TIPO</th><th>USUARIO</th><th>FECHA</th><th>ACCIONES</th></tr></thead>
+    <tbody id="admin-pendientes"></tbody>
+  </table>
+
+  <div class="divider"></div>
+  <h4 class="section-title">Usuarios registrados</h4>
+  <table class="admin-table">
+    <thead><tr><th>USUARIO</th><th>EMAIL</th><th>ROL</th><th>FECHA REGISTRO</th></tr></thead>
+    <tbody id="admin-usuarios"></tbody>
+  </table>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:8000/api';
+const EMOJI = { ovni: '🛸', embrujado: '👻', otro: '✨' };
+
+let fenomenosData = [];
+
+// ── Navegación ──────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('nav .links a').forEach(a => a.classList.remove('active'));
+  if (name === 'admin') loadAdmin();
+}
+
+// ── Fenómenos ────────────────────────────────────────────────
+async function loadFenomenos() {
+  try {
+    const res = await fetch(`${API}/fenomenos/`);
+    fenomenosData = await res.json();
+    renderGrid(fenomenosData);
+  } catch {
+    showToast('Error al conectar con el servidor');
+  }
+}
+
+function renderGrid(data) {
+  const grid = document.getElementById('fenomenos-grid');
+  if (!data.length) {
+    grid.innerHTML = '<p style="color:#555;font-size:.9rem">No hay fenómenos registrados aún.</p>';
+    return;
+  }
+  grid.innerHTML = data.map(f => `
+    <div class="card" onclick="showDetalle(${f.id})">
+      <div class="card-img">${EMOJI[f.tipo] || '🔮'}</div>
+      <div class="card-body">
+        <div class="card-type type-${f.tipo}">${f.tipo.toUpperCase()}</div>
+        <h3>${f.titulo}</h3>
+        <p>${f.descripcion.substring(0, 90)}...</p>
+      </div>
+      <div class="card-footer">
+        <span>${f.fecha_ocurrencia || f.creado_en?.split('T')[0] || ''}</span>
+        <span class="badge ${f.validado ? 'badge-validated' : 'badge-pending'}">${f.validado ? '✓ Validado' : 'Pendiente'}</span>
+      </div>
+    </div>`).join('');
+}
+
+async function showDetalle(id) {
+  try {
+    const [fRes, cRes] = await Promise.all([
+      fetch(`${API}/fenomenos/${id}/`),
+      fetch(`${API}/comentarios/?fenomeno=${id}`)
+    ]);
+    const f = await fRes.json();
+    const comms = await cRes.json();
+
+    const html = `
+      <div class="detail-header">
+        <div class="detail-img">${EMOJI[f.tipo] || '🔮'}</div>
+        <div class="detail-info">
+          <div class="card-type type-${f.tipo}" style="font-size:.8rem">${f.tipo.toUpperCase()}</div>
+          <h2>${f.titulo}</h2>
+          <div class="meta">Reportado el <strong style="color:#4cff72">${f.fecha_ocurrencia || f.creado_en?.split('T')[0] || ''}</strong></div>
+          <p>${f.descripcion}</p>
+          <span class="badge ${f.validado ? 'badge-validated' : 'badge-pending'}" style="font-size:.8rem">${f.validado ? '✓ Verificado' : 'Pendiente de validación'}</span>
+        </div>
+      </div>
+
+      <div class="validacion-bar">
+        <div>
+          <div class="val-count" id="val-count-${f.id}">${f.validaciones?.length ?? 0}</div>
+          <div class="val-label">validaciones de usuarios</div>
+        </div>
+        <button class="btn btn-primary" onclick="validar(${f.id})">Validar este fenómeno</button>
+      </div>
+
+      <div class="detail-map">
+        <h4>Ubicación</h4>
+        <div class="coords">Latitud: ${f.latitud} · Longitud: ${f.longitud}</div>
+        <div class="map-placeholder">[ Mapa interactivo — se integra con Leaflet/Google Maps ]</div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-bottom:24px">
+        <a href="${API}/fenomenos/${f.id}/pdf/" class="btn btn-primary">Descargar PDF</a>
+      </div>
+
+      <div class="divider"></div>
+      <h4 class="section-title">Comentarios (${comms.length})</h4>
+      ${comms.length === 0
+        ? '<p style="color:#555;font-size:.85rem">Aún no hay comentarios. ¡Sé el primero!</p>'
+        : comms.map(c => `
+          <div class="comment">
+            <div class="comment-user">${c.usuario}</div>
+            <div class="comment-text">${c.texto}</div>
+            <div class="comment-date">${c.creado_en?.split('T')[0] || ''}</div>
+          </div>`).join('')}
+      <div class="comment-form" style="margin-top:16px">
+        <textarea id="nuevo-comentario" placeholder="Escribí tu comentario..."></textarea>
+        <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="publicarComentario(${f.id})">Publicar comentario</button>
+      </div>`;
+
+    document.getElementById('detalle-contenido').innerHTML = html;
+    showPage('detalle');
+  } catch {
+    showToast('Error al cargar el fenómeno');
+  }
+}
+
+async function validar(fenomenoId) {
+  const res = await fetch(`${API}/fenomenos/${fenomenoId}/validar/`, { method: 'POST' });
+  if (res.ok) showToast('Validación registrada');
+  else showToast('Error al validar (¿estás autenticado?)');
+}
+
+async function publicarComentario(fenomenoId) {
+  const texto = document.getElementById('nuevo-comentario').value.trim();
+  if (!texto) return;
+  const res = await fetch(`${API}/comentarios/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fenomeno: fenomenoId, texto })
+  });
+  if (res.ok) { showToast('Comentario publicado'); showDetalle(fenomenoId); }
+  else showToast('Error al publicar (¿estás autenticado?)');
+}
+
+// ── Filtros y búsqueda ───────────────────────────────────────
+function filtrar(tipo) {
+  if (tipo === 'todos') renderGrid(fenomenosData);
+  else renderGrid(fenomenosData.filter(f => f.tipo === tipo));
+}
+
+function buscar(q) {
+  renderGrid(fenomenosData.filter(f => f.titulo.toLowerCase().includes(q.toLowerCase())));
+}
+
+// ── Nuevo fenómeno ───────────────────────────────────────────
+function toggleForma() {
+  const tipo = document.getElementById('tipo-select').value;
+  document.getElementById('forma-group').style.display = tipo === 'ovni' ? 'block' : 'none';
+}
+
+async function submitFenomeno() {
+  const body = {
+    tipo: document.getElementById('tipo-select').value,
+    titulo: document.getElementById('nuevo-titulo').value,
+    descripcion: document.getElementById('nuevo-descripcion').value,
+    latitud: parseFloat(document.getElementById('nuevo-latitud').value),
+    longitud: parseFloat(document.getElementById('nuevo-longitud').value),
+    fecha_ocurrencia: document.getElementById('nuevo-fecha').value || null,
+  };
+  const res = await fetch(`${API}/fenomenos/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (res.ok) {
+    showPage('home');
+    showToast('Fenómeno enviado para revisión');
+    loadFenomenos();
+  } else {
+    showToast('Error al enviar (¿estás autenticado?)');
+  }
+}
+
+// ── Admin ────────────────────────────────────────────────────
+async function loadAdmin() {
+  try {
+    const [fRes, uRes] = await Promise.all([
+      fetch(`${API}/fenomenos/`),
+      fetch(`${API}/usuarios/lista/`)
+    ]);
+    const fenomenos = await fRes.json();
+    const usuarios = await uRes.json();
+
+    const pendientes = fenomenos.filter(f => !f.validado);
+    document.getElementById('admin-pendientes').innerHTML = pendientes.length
+      ? pendientes.map(f => `
+          <tr>
+            <td>${f.titulo}</td>
+            <td><span class="card-type type-${f.tipo}">${f.tipo.toUpperCase()}</span></td>
+            <td>${f.creado_por ?? '—'}</td>
+            <td>${f.fecha_ocurrencia || f.creado_en?.split('T')[0] || ''}</td>
+            <td>
+              <button class="btn btn-primary btn-sm" onclick="aprobarFenomeno(${f.id})">Aprobar</button> &nbsp;
+              <button class="btn btn-danger btn-sm" onclick="rechazarFenomeno(${f.id})">Rechazar</button>
+            </td>
+          </tr>`).join('')
+      : '<tr><td colspan="5" style="color:#555">No hay fenómenos pendientes</td></tr>';
+
+    document.getElementById('admin-usuarios').innerHTML = usuarios.length
+      ? usuarios.map(u => `
+          <tr>
+            <td>${u.username}</td>
+            <td>${u.email}</td>
+            <td><span class="${u.rol === 'admin' ? 'badge badge-validated' : 'tag'}">${u.rol}</span></td>
+            <td>${u.date_joined?.split('T')[0] || ''}</td>
+          </tr>`).join('')
+      : '<tr><td colspan="4" style="color:#555">No hay usuarios</td></tr>';
+  } catch {
+    showToast('Error al cargar el panel de administración');
+  }
+}
+
+async function aprobarFenomeno(id) {
+  const res = await fetch(`${API}/fenomenos/${id}/`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ validado: true })
+  });
+  if (res.ok) { showToast('Fenómeno aprobado'); loadAdmin(); }
+  else showToast('Error al aprobar');
+}
+
+async function rechazarFenomeno(id) {
+  const res = await fetch(`${API}/fenomenos/${id}/`, { method: 'DELETE' });
+  if (res.ok) { showToast('Fenómeno rechazado'); loadAdmin(); }
+  else showToast('Error al rechazar');
+}
+
+// ── Auth ─────────────────────────────────────────────────────
+function switchTab(formId, tab) {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('register-form').style.display = 'none';
+  document.getElementById(formId).style.display = 'block';
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+}
+
+async function login() {
+  const username = document.querySelector('#login-form input[type=text]').value;
+  const password = document.querySelector('#login-form input[type=password]').value;
+  const res = await fetch(`${API}/usuarios/login/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  });
+  if (res.ok) {
+    document.getElementById('nav-auth').textContent = username;
+    showPage('home');
+    showToast('Sesión iniciada');
+  } else {
+    showToast('Usuario o contraseña incorrectos');
+  }
+}
+
+async function register() {
+  const username = document.querySelector('#register-form input[type=text]').value;
+  const email = document.querySelector('#register-form input[type=email]').value;
+  const password = document.querySelector('#register-form input[type=password]').value;
+  const res = await fetch(`${API}/usuarios/register/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, email, password })
+  });
+  if (res.ok) { showPage('home'); showToast('Cuenta creada. ¡Bienvenido!'); }
+  else showToast('Error al registrarse');
+}
+
+// ── Toast ────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+loadFenomenos();
+</script>
+</body>
+</html>
