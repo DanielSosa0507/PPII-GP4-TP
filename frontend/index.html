@@ -230,6 +230,13 @@ const API = '/api';
 const EMOJI = { ovni: '🛸', embrujado: '👻', otro: '✨' };
 
 let fenomenosData = [];
+let authToken = null;
+
+function authHeaders() {
+  const h = { 'Content-Type': 'application/json' };
+  if (authToken) h['Authorization'] = `Token ${authToken}`;
+  return h;
+}
 
 // ── Navegación ──────────────────────────────────────────────
 function showPage(name) {
@@ -393,8 +400,8 @@ async function submitFenomeno() {
 async function loadAdmin() {
   try {
     const [fRes, uRes] = await Promise.all([
-      fetch(`${API}/fenomenos/`),
-      fetch(`${API}/usuarios/lista/`)
+      fetch(`${API}/fenomenos/`, { headers: authHeaders() }),
+      fetch(`${API}/usuarios/lista/`, { headers: authHeaders() })
     ]);
     const fenomenos = await fRes.json();
     const usuarios = await uRes.json();
@@ -462,6 +469,8 @@ async function login() {
     body: JSON.stringify({ username, password })
   });
   if (res.ok) {
+    const data = await res.json();
+    authToken = data.token;
     document.getElementById('nav-auth').textContent = username;
     showPage('home');
     showToast('Sesión iniciada');
