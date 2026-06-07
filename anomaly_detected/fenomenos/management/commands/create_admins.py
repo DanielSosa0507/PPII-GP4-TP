@@ -1,3 +1,4 @@
+import os
 from django.core.management.base import BaseCommand
 from usuarios.models import Usuario
 
@@ -8,7 +9,7 @@ ADMINS = [
     {'username': 'sandra',    'email': 'sandra@anomaly.com'},
 ]
 
-DEFAULT_PASSWORD = 'Anomaly2026!'
+DEFAULT_PASSWORD = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'Anomaly2026!')
 
 class Command(BaseCommand):
 
