@@ -95,6 +95,12 @@
   .admin-table td { padding: 12px 14px; border-bottom: 1px solid #111; color: #aaa; }
   .admin-table tr:hover td { background: #0d1117; }
 
+  /* PASSWORD TOGGLE */
+  .pw-wrapper { position: relative; }
+  .pw-wrapper input { padding-right: 40px; }
+  .pw-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #555; font-size: 1rem; line-height: 1; }
+  .pw-toggle:hover { color: #4cff72; }
+
   /* TOAST */
   .toast { position: fixed; bottom: 24px; right: 24px; background: #1a5c2a; border: 1px solid #4cff72; color: #4cff72; padding: 12px 20px; border-radius: 8px; font-size: 0.85rem; display: none; z-index: 999; }
   .toast.show { display: block; }
@@ -112,9 +118,11 @@
   <div class="links">
     <a href="#" class="active" onclick="showPage('home')">Fenómenos</a>
     <a href="#" onclick="showPage('admin')">Admin</a>
-    <a href="#" onclick="showPage('login')">
-      <span id="nav-auth">Iniciar sesión</span>
-    </a>
+    <a href="#" id="nav-login-link" onclick="showPage('login')">Iniciar sesión</a>
+    <span id="nav-user-info" style="display:none">
+      <span id="nav-username" style="color:#4cff72;font-size:0.85rem;margin-left:24px"></span>
+      <a href="#" onclick="logout()" style="margin-left:16px;color:#ff6b6b;font-size:0.85rem">Cerrar sesión</a>
+    </span>
   </div>
 </nav>
 
@@ -157,7 +165,7 @@
       <h2>Bienvenido</h2>
       <p>Ingresá para comentar, validar y reportar fenómenos.</p>
       <div class="form-group"><label>Usuario</label><input type="text" placeholder="tu_usuario"></div>
-      <div class="form-group"><label>Contraseña</label><input type="password" placeholder="••••••••"></div>
+      <div class="form-group"><label>Contraseña</label><div class="pw-wrapper"><input id="login-password" type="password" placeholder="••••••••"><button type="button" class="pw-toggle" onclick="togglePassword('login-password', this)">👁</button></div></div>
       <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="login()">Ingresar</button>
     </div>
 
@@ -166,7 +174,7 @@
       <p>Sumate a la comunidad paranormal.</p>
       <div class="form-group"><label>Usuario</label><input type="text" placeholder="tu_usuario"></div>
       <div class="form-group"><label>Email</label><input type="email" placeholder="email@ejemplo.com"></div>
-      <div class="form-group"><label>Contraseña</label><input type="password" placeholder="••••••••"></div>
+      <div class="form-group"><label>Contraseña</label><div class="pw-wrapper"><input id="register-password" type="password" placeholder="••••••••"><button type="button" class="pw-toggle" onclick="togglePassword('register-password', this)">👁</button></div></div>
       <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="register()">Registrarse</button>
     </div>
   </div>
@@ -460,9 +468,24 @@ function switchTab(formId, tab) {
   tab.classList.add('active');
 }
 
+function togglePassword(id, btn) {
+  const input = document.getElementById(id);
+  input.type = input.type === 'password' ? 'text' : 'password';
+  btn.textContent = input.type === 'password' ? '👁' : '🙈';
+}
+
+function logout() {
+  authToken = null;
+  document.getElementById('nav-login-link').style.display = 'inline';
+  document.getElementById('nav-user-info').style.display = 'none';
+  document.getElementById('nav-username').textContent = '';
+  showPage('home');
+  showToast('Sesión cerrada');
+}
+
 async function login() {
   const username = document.querySelector('#login-form input[type=text]').value;
-  const password = document.querySelector('#login-form input[type=password]').value;
+  const password = document.getElementById('login-password').value;
   const res = await fetch(`${API}/usuarios/login/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -471,7 +494,9 @@ async function login() {
   if (res.ok) {
     const data = await res.json();
     authToken = data.token;
-    document.getElementById('nav-auth').textContent = username;
+    document.getElementById('nav-login-link').style.display = 'none';
+    document.getElementById('nav-user-info').style.display = 'inline';
+    document.getElementById('nav-username').textContent = username;
     showPage('home');
     showToast('Sesión iniciada');
   } else {
@@ -482,7 +507,7 @@ async function login() {
 async function register() {
   const username = document.querySelector('#register-form input[type=text]').value;
   const email = document.querySelector('#register-form input[type=email]').value;
-  const password = document.querySelector('#register-form input[type=password]').value;
+  const password = document.getElementById('register-password').value;
   const res = await fetch(`${API}/usuarios/register/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
