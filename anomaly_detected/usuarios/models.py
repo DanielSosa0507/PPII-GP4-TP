@@ -30,6 +30,24 @@ class Usuario(AbstractUser):
     def __str__(self):
         return self.username
 
+    def recalcular_gamificacion(self):
+        """Recalcula los contadores desde los datos reales (no incrementa a ciegas,
+        así quedan correctos también si se borra una visita o un comentario)."""
+        from comentarios.models import Comentario
+        from fenomenos.models import Visita
+
+        visitas = Visita.objects.filter(usuario=self)
+        self.lugares_visitados = visitas.count()
+        self.estados_explorados = (
+            visitas.exclude(fenomeno__estado='')
+            .values('fenomeno__estado').distinct().count()
+        )
+        self.fenomenos_comentados = (
+            Comentario.objects.filter(usuario=self)
+            .values('fenomeno').distinct().count()
+        )
+        self.save(update_fields=['lugares_visitados', 'estados_explorados', 'fenomenos_comentados'])
+
     # --- Insignias calculadas a partir de la actividad ---
     # (no se guardan como campo aparte; se derivan de los contadores
     # de arriba para que nunca queden "desincronizadas")

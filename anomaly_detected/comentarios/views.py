@@ -8,7 +8,9 @@ class ComentarioListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         fenomeno_id = self.request.query_params.get('fenomeno')
-        return Comentario.objects.filter(fenomeno=fenomeno_id, activo=True)
+        return Comentario.objects.filter(
+            fenomeno=fenomeno_id, activo=True
+        ).select_related('usuario', 'fenomeno')
 
     def perform_create(self, serializer):
         serializer.save(usuario=self.request.user)

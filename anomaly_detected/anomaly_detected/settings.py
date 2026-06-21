@@ -22,18 +22,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# ponytail: insecure fallback only for local dev without a .env; set SECRET_KEY in production.
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-sn&ekg79$r1(_tc^*jd#dxo=u3)q=)lh9l5!mq9zjm##!6g!rw")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
+        # ponytail: lets the server-rendered HTML pages (session login) call the API directly.
+        'rest_framework.authentication.SessionAuthentication',
     ]
 }
 
@@ -52,6 +55,7 @@ INSTALLED_APPS = [
     "usuarios",
     "fenomenos",
     "comentarios",
+    "comunidad",
     'corsheaders',
 ]
 
@@ -66,7 +70,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'corsheaders.middleware.CorsMiddleware',
 ]
-CORS_ALLOW_ALL_ORIGINS = True  
+# ponytail: allow-all only in DEBUG; set CORS_ALLOWED_ORIGINS env var (comma-separated) in production.
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+CORS_ALLOWED_ORIGINS = [o for o in os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",") if o]
 
 ROOT_URLCONF = "anomaly_detected.urls"
 
@@ -137,17 +143,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-import os
-from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_ROOT = BASE_DIR / "staticfiles"
+# ponytail: serves static files straight from STATICFILES_DIRS, no collectstatic needed in dev.
+WHITENOISE_USE_FINDERS = True
 
-DEBUG = True
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'index'
 

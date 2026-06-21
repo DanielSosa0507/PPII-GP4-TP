@@ -72,8 +72,8 @@ function detectarEventoActivo() {
     if (ahora.getMonth() === 9) { // 0-indexado: 9 = octubre
         return {
             clase: 'halloween',
-            mensaje: '🎃 Modo Halloween activado — Ruta embrujada especial todo octubre',
-            iconos: ['🎃', '🦇', '👻', '🕸️'],
+            mensaje: 'Modo Halloween activado — Ruta embrujada especial todo octubre',
+            iconos: [],
         };
     }
 
@@ -81,8 +81,8 @@ function detectarEventoActivo() {
     if (esLunaLlenaHoy(ahora)) {
         return {
             clase: 'luna-llena',
-            mensaje: '🌕 Noche de Luna llena — mayor visibilidad nocturna para avistamientos hoy',
-            iconos: ['🌕', '✨', '🌌', '👁️'],
+            mensaje: 'Noche de Luna llena — mayor visibilidad nocturna para avistamientos hoy',
+            iconos: [],
         };
     }
 
@@ -112,6 +112,8 @@ function insertarBannerEvento(evento) {
 }
 
 function insertarDecoracionEvento(evento) {
+    if (!evento.iconos.length) return;
+
     var capa = document.createElement('div');
     capa.className = 'decoracion-evento';
     capa.setAttribute('aria-hidden', 'true');

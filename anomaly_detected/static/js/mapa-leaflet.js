@@ -10,58 +10,17 @@
     if (!mapaEl || typeof L === 'undefined') return; // Leaflet no cargó o no es la página del mapa
 
     /* ------------------------------------------------------------
-       DATOS DE EJEMPLO (coordenadas geográficas reales).
-       Cuando se conecte la API real, este array se reemplaza por
-       el resultado de fetch('/api/fenomenos/').
+       DATOS REALES — se cargan desde la API. FENOMENOS y FAVORITOS
+       arrancan vacíos y se llenan cuando responde el fetch (más abajo).
        ------------------------------------------------------------ */
-    var FENOMENOS = [
-        {
-            id: 'roswell',
-            nombre: 'Roswell, New Mexico',
-            tipo: 'ovni',
-            lat: 33.3943,
-            lng: -104.5230,
-            anio: 1947,
-            actividad: 'extrema',
-            esAltaConcentracion: true,
-        },
-        {
-            id: 'area51',
-            nombre: 'Area 51, Nevada',
-            tipo: 'ovni',
-            lat: 37.2431,
-            lng: -115.7930,
-            anio: 2026,
-            actividad: 'extrema',
-        },
-        {
-            id: 'phoenix',
-            nombre: 'Phoenix Lights, AZ',
-            tipo: 'ovni',
-            lat: 33.4484,
-            lng: -112.0740,
-            anio: 1997,
-            actividad: 'moderada',
-        },
-        {
-            id: 'winchester',
-            nombre: 'Winchester House, CA',
-            tipo: 'embrujado',
-            lat: 37.3184,
-            lng: -121.9510,
-            anio: 1926,
-            actividad: 'alta',
-        },
-        {
-            id: 'stanley',
-            nombre: 'Stanley Hotel, CO',
-            tipo: 'embrujado',
-            lat: 40.4072,
-            lng: -105.5220,
-            anio: 1909,
-            actividad: 'alta',
-        },
-    ];
+    var FENOMENOS = [];
+    var FAVORITOS = {}; // id de fenómeno -> id del registro Favorito
+    var VISITAS = {}; // id de fenómeno -> id del registro Visita
+
+    function getCookie(name) {
+        var match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return match ? match.pop() : '';
+    }
 
     /* ------------------------------------------------------------
        INICIALIZACIÓN DEL MAPA
@@ -120,38 +79,192 @@
        ------------------------------------------------------------ */
     var marcadores = {};
 
-    FENOMENOS.forEach(function (f) {
-        var icono = f.tipo === 'embrujado' ? iconoMorado : iconoVerde;
-        var marker = L.marker([f.lat, f.lng], { icon: icono }).addTo(mapa);
+    function popupFavoritoHtml(f) {
+        var esFavorito = !!FAVORITOS[f.id];
+        return '<button type="button" class="btn-favorito-popup' + (esFavorito ? ' es-favorito' : '') +
+            '" data-fenomeno="' + f.id + '">' +
+            (esFavorito ? '♥ Quitar de favoritos' : '♡ Agregar a favoritos') + '</button>';
+    }
 
-        var tipoLabel = f.tipo === 'embrujado' ? 'Lugar embrujado' : 'Avistamiento OVNI';
-        var actividadLabel = {
-            baja: 'Actividad baja',
-            moderada: 'Actividad moderada',
-            alta: 'Actividad alta',
-            extrema: 'Actividad extrema',
-        }[f.actividad] || '';
+    function estrellasHtml(valorActual) {
+        var html = '';
+        for (var i = 1; i <= 5; i++) {
+            html += '<button type="button" class="ficha-estrella' + (i <= valorActual ? ' activa' : '') +
+                '" data-valor="' + i + '">★</button>';
+        }
+        return html;
+    }
 
-        var contenidoPopup =
-            '<div class="popup-mapa-cyber popup-leaflet">' +
-            '<h4>' + f.nombre + '</h4>' +
-            '<p class="sub">' + tipoLabel + ' — ' + f.anio + '</p>' +
-            '<span class="tag-alerta-extrema">' + actividadLabel + '</span>' +
-            '<button type="button" class="btn-ver-detalles" data-fenomeno="' + f.id + '">Ver detalles →</button>' +
-            '</div>';
+    function construirMarcadores() {
+        FENOMENOS.forEach(function (f) {
+            var icono = f.tipo === 'embrujado' ? iconoMorado : iconoVerde;
+            var marker = L.marker([f.lat, f.lng], { icon: icono }).addTo(mapa);
 
-        marker.bindPopup(contenidoPopup, { closeButton: false, className: 'popup-leaflet-wrapper' });
-        marcadores[f.id] = marker;
+            var tipoLabel = f.tipo === 'embrujado' ? 'Lugar embrujado' : 'Avistamiento OVNI';
+            var anio = f.fecha_ocurrencia ? f.fecha_ocurrencia.slice(0, 4) : 's/f';
+
+            var contenidoPopup =
+                '<div class="popup-mapa-cyber popup-leaflet">' +
+                '<h4>' + f.titulo + '</h4>' +
+                '<p class="sub">' + tipoLabel + ' — ' + anio + '</p>' +
+                popupFavoritoHtml(f) +
+                '<button type="button" class="btn-ver-detalles" data-fenomeno="' + f.id + '">Ver detalles →</button>' +
+                '</div>';
+
+            marker.bindPopup(contenidoPopup, { closeButton: false, className: 'popup-leaflet-wrapper' });
+            marcadores[f.id] = marker;
+        });
+    }
+
+    // Delegación de eventos: como los popups y el modal de ficha se
+    // insertan/actualizan dinámicamente, escuchamos el click en el documento.
+    document.addEventListener('click', function (e) {
+        var btnDetalle = e.target.closest('.btn-ver-detalles[data-fenomeno]');
+        if (btnDetalle) { abrirFichaModal(btnDetalle.getAttribute('data-fenomeno')); return; }
+
+        var btnFav = e.target.closest('.btn-favorito-popup[data-fenomeno]');
+        if (btnFav) { toggleFavorito(btnFav); return; }
+
+        var btnVis = e.target.closest('.btn-visitado-popup[data-fenomeno]');
+        if (btnVis) { toggleVisitado(btnVis); return; }
+
+        var btnEstrella = e.target.closest('.ficha-estrella[data-valor]');
+        if (btnEstrella) { puntuarFicha(btnEstrella); }
     });
 
-    // Delegación de eventos: como los popups de Leaflet se insertan
-    // dinámicamente, escuchamos el click en el documento.
-    document.addEventListener('click', function (e) {
-        var btn = e.target.closest('.btn-ver-detalles[data-fenomeno]');
-        if (!btn) return;
+    // Crea una función de toggle (agregar/quitar) genérica para los
+    // endpoints con la forma favoritos/visitas: POST para agregar,
+    // DELETE /<id>/ para quitar.
+    function crearToggle(mapaEstado, urlBase, etiquetaOn, etiquetaOff) {
+        return function (btn) {
+            var fenomenoId = btn.getAttribute('data-fenomeno');
+            var registroId = mapaEstado[fenomenoId];
+
+            var peticion = registroId
+                ? fetch(urlBase + registroId + '/', {
+                      method: 'DELETE',
+                      credentials: 'same-origin',
+                      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                  }).then(function () { delete mapaEstado[fenomenoId]; })
+                : fetch(urlBase, {
+                      method: 'POST',
+                      credentials: 'same-origin',
+                      headers: {
+                          'Content-Type': 'application/json',
+                          'X-CSRFToken': getCookie('csrftoken'),
+                      },
+                      body: JSON.stringify({ fenomeno: fenomenoId }),
+                  }).then(function (res) {
+                      if (res.status === 401 || res.status === 403) {
+                          window.location.href = '/login/';
+                          return Promise.reject();
+                      }
+                      return res.json();
+                  }).then(function (data) { mapaEstado[fenomenoId] = data.id; });
+
+            return peticion.then(function () {
+                var activo = !!mapaEstado[fenomenoId];
+                btn.classList.toggle('es-favorito', activo);
+                btn.textContent = activo ? etiquetaOn : etiquetaOff;
+            }).catch(function () {});
+        };
+    }
+
+    var toggleFavorito = crearToggle(FAVORITOS, '/api/fenomenos/favoritos/', '♥ Quitar de favoritos', '♡ Agregar a favoritos');
+    var toggleVisitado = crearToggle(VISITAS, '/api/fenomenos/visitas/', '✓ Visitado (quitar)', 'Marcar como visitado');
+
+    function abrirFichaModal(fenomenoId) {
+        var f = FENOMENOS.find(function (x) { return String(x.id) === String(fenomenoId); });
+        if (!f) return;
+
+        var tipoLabel = { ovni: 'OVNI', embrujado: 'Lugar embrujado', otro: 'Otro' }[f.tipo] || f.tipo;
+        var anio = f.fecha_ocurrencia ? f.fecha_ocurrencia.slice(0, 4) : 's/f';
+
+        var badge = document.getElementById('fichaBadge');
+        badge.textContent = tipoLabel;
+        badge.className = 'badge badge-' + f.tipo;
+        document.getElementById('fichaTitulo').textContent = f.titulo;
+        document.getElementById('fichaUbicacion').textContent = (f.estado ? f.estado + ', ' : '') + 'EE.UU. · ' + anio;
+        document.getElementById('fichaPuntuacion').textContent = f.puntuacion_promedio
+            ? '★ ' + f.puntuacion_promedio + ' (' + f.puntuacion_total + ')'
+            : 'Sin puntuar todavía';
+        document.getElementById('fichaDescripcion').textContent = f.descripcion;
+
+        var btnFav = document.getElementById('fichaBtnFavorito');
+        var esFavorito = !!FAVORITOS[f.id];
+        btnFav.setAttribute('data-fenomeno', f.id);
+        btnFav.className = 'btn-favorito-popup' + (esFavorito ? ' es-favorito' : '');
+        btnFav.textContent = esFavorito ? '♥ Quitar de favoritos' : '♡ Agregar a favoritos';
+
+        var btnVis = document.getElementById('fichaBtnVisitado');
+        var esVisitado = !!VISITAS[f.id];
+        btnVis.setAttribute('data-fenomeno', f.id);
+        btnVis.className = 'btn-visitado-popup' + (esVisitado ? ' es-favorito' : '');
+        btnVis.textContent = esVisitado ? '✓ Visitado (quitar)' : 'Marcar como visitado';
+
+        document.getElementById('fichaMiPuntuacion').innerHTML =
+            '<span class="ficha-mi-puntuacion-label">Tu puntuación:</span> ' +
+            '<span class="ficha-estrellas" data-fenomeno="' + f.id + '">' + estrellasHtml(0) + '</span>';
+
+        var comentariosEl = document.getElementById('fichaComentarios');
+        comentariosEl.innerHTML = '<p class="ficha-vacio">Cargando…</p>';
+        fetch('/api/comentarios/?fenomeno=' + f.id, { credentials: 'same-origin' })
+            .then(function (res) { return res.json(); })
+            .then(function (comentarios) {
+                comentariosEl.innerHTML = comentarios.length
+                    ? comentarios.map(function (c) {
+                        return '<div class="modal-ficha-comentario">' +
+                            '<div class="modal-ficha-comentario-header"><strong>' + c.usuario_nombre + '</strong></div>' +
+                            '<p>' + c.texto + '</p></div>';
+                    }).join('')
+                    : '<p class="ficha-vacio">Todavía no hay comentarios.</p>';
+            });
+
+        var enlacesEl = document.getElementById('fichaEnlaces');
+        enlacesEl.innerHTML = '<p class="ficha-vacio">Cargando…</p>';
+        fetch('/api/fenomenos/' + f.id + '/enlaces/', { credentials: 'same-origin' })
+            .then(function (res) { return res.json(); })
+            .then(function (enlaces) {
+                enlacesEl.innerHTML = enlaces.length
+                    ? enlaces.map(function (en) {
+                        return '<a class="ficha-enlace" href="' + en.url + '" target="_blank" rel="noopener">' + en.titulo + '</a>';
+                    }).join('')
+                    : '<p class="ficha-vacio">No hay enlaces todavía.</p>';
+            });
+
         var modal = document.getElementById('modalFichaFenomeno');
         if (modal) modal.showModal();
-    });
+    }
+
+    function puntuarFicha(btn) {
+        var contenedor = btn.closest('.ficha-estrellas');
+        var fenomenoId = contenedor.getAttribute('data-fenomeno');
+        var valor = Number(btn.getAttribute('data-valor'));
+
+        fetch('/api/fenomenos/' + fenomenoId + '/puntuar/', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ valor: valor }),
+        }).then(function (res) {
+            if (res.status === 401 || res.status === 403) {
+                window.location.href = '/login/';
+                return Promise.reject();
+            }
+            contenedor.innerHTML = estrellasHtml(valor);
+            return fetch('/api/fenomenos/' + fenomenoId + '/', { credentials: 'same-origin' });
+        }).then(function (res) { return res.json(); })
+          .then(function (data) {
+              var f = FENOMENOS.find(function (x) { return String(x.id) === String(fenomenoId); });
+              if (f) {
+                  f.puntuacion_promedio = data.puntuacion_promedio;
+                  f.puntuacion_total = data.puntuacion_total;
+              }
+              document.getElementById('fichaPuntuacion').textContent = data.puntuacion_promedio
+                  ? '★ ' + data.puntuacion_promedio + ' (' + data.puntuacion_total + ')'
+                  : 'Sin puntuar todavía';
+          }).catch(function () {});
+    }
 
     /* ------------------------------------------------------------
        CAPA DE MAPA DE CALOR (manchas radiales sobre coordenadas reales)
@@ -182,7 +295,6 @@
             circulosCalor.push(circulo);
         });
     }
-    construirCapaCalor();
 
     function toggleCapaCalor(activar) {
         circulosCalor.forEach(function (c) {
@@ -261,11 +373,12 @@
         });
     }
 
-    // Abre el popup de Roswell al cargar, para que se vea contenido
-    // de ejemplo apenas entra a la página (igual que el diseño original).
-    setTimeout(function () {
-        if (marcadores.roswell) marcadores.roswell.openPopup();
-    }, 600);
+    // Abre el popup del primer fenómeno al cargar, para que se vea
+    // contenido apenas entra a la página.
+    function abrirPrimerPopup() {
+        var primero = FENOMENOS[0];
+        if (primero) marcadores[primero.id].openPopup();
+    }
 
     /* ------------------------------------------------------------
        RECORRIDOS TEMÁTICOS — al clickear una tarjeta, dibuja una
@@ -353,5 +466,35 @@
 
             mapa.fitBounds(lineaRutaActual.getBounds(), { padding: [60, 60] });
         });
+    });
+
+    /* ------------------------------------------------------------
+       CARGA DE DATOS REALES — fenómenos desde la API, y los
+       favoritos del usuario actual si está logueado (si no, la
+       API devuelve 401 y seguimos sin favoritos marcados).
+       ------------------------------------------------------------ */
+    function fetchPropio(url) {
+        return fetch(url, { credentials: 'same-origin' })
+            .then(function (res) { return res.ok ? res.json() : []; })
+            .catch(function () { return []; });
+    }
+
+    Promise.all([
+        fetchPropio('/api/fenomenos/'),
+        fetchPropio('/api/fenomenos/favoritos/'),
+        fetchPropio('/api/fenomenos/visitas/'),
+    ]).then(function (resultados) {
+        // La API usa latitud/longitud; Leaflet espera lat/lng.
+        FENOMENOS = resultados[0].map(function (f) {
+            f.lat = f.latitud;
+            f.lng = f.longitud;
+            return f;
+        });
+        resultados[1].forEach(function (fav) { FAVORITOS[fav.fenomeno] = fav.id; });
+        resultados[2].forEach(function (vis) { VISITAS[vis.fenomeno] = vis.id; });
+
+        construirMarcadores();
+        construirCapaCalor();
+        setTimeout(abrirPrimerPopup, 600);
     });
 })();

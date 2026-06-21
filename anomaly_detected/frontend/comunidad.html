@@ -20,58 +20,21 @@
     <main class="page-container">
         <section class="feed">
             <div class="community-header">
-                <h2>🛸 Comunidad</h2>
-                <div class="tabs">
-                    <button class="tab active" data-tab="teorias">Teorías</button>
-                    <button class="tab" data-tab="experiencias">Experiencias</button>
-                    <button class="tab" data-tab="eventos">Eventos</button>
-                </div>
+                <h2>Comunidad</h2>
             </div>
 
             <div class="post-creator">
                 <div class="avatar">👤</div>
-                <textarea placeholder="Compartí tu teoría o experiencia paranormal..."></textarea>
-                <button class="btn-publish" type="button">Publicar</button>
+                <div class="post-creator-campos">
+                    <input type="text" id="teoriaTitulo" placeholder="Título de tu teoría...">
+                    <textarea id="teoriaContenido" placeholder="Compartí tu teoría sobre algún fenómeno..."></textarea>
+                    <button class="btn-publish" type="button" id="btnPublicarTeoria">Publicar</button>
+                </div>
             </div>
 
-            <article class="post-card">
-                <div class="user-info">
-                    <div class="avatar">👤</div>
-                    <div class="meta">
-                        <strong>cazador_nocturno</strong> <span class="user-tag">Investigador</span>
-                        <small>Hace 2 horas</small>
-                    </div>
-                </div>
-                <p>Creo que el aumento de avistamientos en 2012 está directamente relacionado con el ciclo solar. Los campos electromagnéticos podrían estar atrayendo objetos no identificados hacia zonas específicas...</p>
-                <div class="tags"><span class="tag">#OVNI</span> <span class="tag">#NewMexico</span></div>
-                <div class="actions">
-                    <button class="btn-vote btn-vote-creible" type="button">Creíble (12)</button>
-                    <button class="btn-vote" type="button">Dudoso (4)</button>
-                    <button class="btn-vote" type="button">Muy extraño (7)</button>
-                </div>
-                <div class="stats">
-                    <span>👍 23</span> <span>💬 8 respuestas</span> <span>🔗 Compartir</span>
-                </div>
-            </article>
-
-            <article class="post-card">
-                <div class="user-info">
-                    <div class="avatar">👤</div>
-                    <div class="meta">
-                        <strong>testigo_frecuente</strong> <span class="user-tag">Cazador paranormal</span>
-                        <small>Hace 5 horas</small>
-                    </div>
-                </div>
-                <p>Visité el Stanley Hotel la semana pasada. La habitación 217 tiene una energía muy particular, escuché pasos a las 3am y la temperatura bajó de golpe...</p>
-                <div class="tags"><span class="tag">#LugarEmbrujado</span> <span class="tag">#StanleyHotel</span></div>
-                <div class="actions">
-                    <button class="btn-vote" type="button">Muy extraño (19)</button>
-                    <button class="btn-vote btn-vote-creible" type="button">Creíble (6)</button>
-                </div>
-                <div class="stats">
-                    <span>👍 41</span> <span>💬 15 respuestas</span> <span>🔗 Compartir</span>
-                </div>
-            </article>
+            <div id="teoriasFeed">
+                <p class="ficha-vacio">Cargando teorías…</p>
+            </div>
         </section>
 
         <aside class="sidebar-comunidad">
@@ -81,18 +44,10 @@
                 <p><strong>15 JUL</strong> - Noche de avistamientos, Roswell</p>
                 <p><strong>20 AGO</strong> - Exploración Area 51</p>
             </div>
-            <div class="sidebar-box">
-                <h3>TOP INVESTIGADORES</h3>
-                <ol>
-                    <li>1. cazador_nocturno <span>980 pts</span></li>
-                    <li>2. testigo_frecuente <span>740 pts</span></li>
-                    <li>3. explorador_x <span>610 pts</span></li>
-                    <li>4. sombra_azul <span>480 pts</span></li>
-                </ol>
-            </div>
         </aside>
     </main>
 
     <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/comunidad.js' %}"></script>
 </body>
 </html>

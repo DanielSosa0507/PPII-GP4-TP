@@ -47,4 +47,5 @@ urlpatterns = [
     path('api/usuarios/', include('usuarios.urls')),
     path('api/fenomenos/', include('fenomenos.urls')),
     path('api/comentarios/', include('comentarios.urls')),
+    path('api/comunidad/', include('comunidad.urls')),
 ]
