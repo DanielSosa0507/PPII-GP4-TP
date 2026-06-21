@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly Detected - Comunidad</title>
+    <script>
+        (function () {
+            var hora = new Date().getHours();
+            var esDeDia = hora >= 6 && hora < 18;
+            if (esDeDia) document.documentElement.classList.add('light-theme');
+        })();
+    </script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="body-cyber">
+    {% include 'partials/navbar.html' with active='comunidad' %}
+
+    <main class="page-container">
+        <section class="feed">
+            <div class="community-header">
+                <h2>🛸 Comunidad</h2>
+                <div class="tabs">
+                    <button class="tab active" data-tab="teorias">Teorías</button>
+                    <button class="tab" data-tab="experiencias">Experiencias</button>
+                    <button class="tab" data-tab="eventos">Eventos</button>
+                </div>
+            </div>
+
+            <div class="post-creator">
+                <div class="avatar">👤</div>
+                <textarea placeholder="Compartí tu teoría o experiencia paranormal..."></textarea>
+                <button class="btn-publish" type="button">Publicar</button>
+            </div>
+
+            <article class="post-card">
+                <div class="user-info">
+                    <div class="avatar">👤</div>
+                    <div class="meta">
+                        <strong>cazador_nocturno</strong> <span class="user-tag">Investigador</span>
+                        <small>Hace 2 horas</small>
+                    </div>
+                </div>
+                <p>Creo que el aumento de avistamientos en 2012 está directamente relacionado con el ciclo solar. Los campos electromagnéticos podrían estar atrayendo objetos no identificados hacia zonas específicas...</p>
+                <div class="tags"><span class="tag">#OVNI</span> <span class="tag">#NewMexico</span></div>
+                <div class="actions">
+                    <button class="btn-vote btn-vote-creible" type="button">Creíble (12)</button>
+                    <button class="btn-vote" type="button">Dudoso (4)</button>
+                    <button class="btn-vote" type="button">Muy extraño (7)</button>
+                </div>
+                <div class="stats">
+                    <span>👍 23</span> <span>💬 8 respuestas</span> <span>🔗 Compartir</span>
+                </div>
+            </article>
+
+            <article class="post-card">
+                <div class="user-info">
+                    <div class="avatar">👤</div>
+                    <div class="meta">
+                        <strong>testigo_frecuente</strong> <span class="user-tag">Cazador paranormal</span>
+                        <small>Hace 5 horas</small>
+                    </div>
+                </div>
+                <p>Visité el Stanley Hotel la semana pasada. La habitación 217 tiene una energía muy particular, escuché pasos a las 3am y la temperatura bajó de golpe...</p>
+                <div class="tags"><span class="tag">#LugarEmbrujado</span> <span class="tag">#StanleyHotel</span></div>
+                <div class="actions">
+                    <button class="btn-vote" type="button">Muy extraño (19)</button>
+                    <button class="btn-vote btn-vote-creible" type="button">Creíble (6)</button>
+                </div>
+                <div class="stats">
+                    <span>👍 41</span> <span>💬 15 respuestas</span> <span>🔗 Compartir</span>
+                </div>
+            </article>
+        </section>
+
+        <aside class="sidebar-comunidad">
+            <div class="sidebar-box">
+                <h3>PRÓXIMOS EVENTOS</h3>
+                <p><strong>31 OCT</strong> - Ruta embrujada — Halloween</p>
+                <p><strong>15 JUL</strong> - Noche de avistamientos, Roswell</p>
+                <p><strong>20 AGO</strong> - Exploración Area 51</p>
+            </div>
+            <div class="sidebar-box">
+                <h3>TOP INVESTIGADORES</h3>
+                <ol>
+                    <li>1. cazador_nocturno <span>980 pts</span></li>
+                    <li>2. testigo_frecuente <span>740 pts</span></li>
+                    <li>3. explorador_x <span>610 pts</span></li>
+                    <li>4. sombra_azul <span>480 pts</span></li>
+                </ol>
+            </div>
+        </aside>
+    </main>
+
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

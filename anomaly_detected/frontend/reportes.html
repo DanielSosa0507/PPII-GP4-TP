@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly Detected - Reportes</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="body-cyber">
+    {% include 'partials/navbar.html' with active='reportes' %}
+
+    <div class="dashboard-container">
+
+        <aside class="sidebar">
+            <h1 class="logo">🛸 ANOMALY DETECTED</h1>
+            <a href="{% url 'index' %}" class="back-link">← Volver a Inicio</a>
+
+            <div class="section">
+                <a href="{% url 'ReportForm' %}" class="btn-generar-reporte">+ GENERAR REPORTE</a>
+            </div>
+
+            <div class="section">
+                <h3>FILTROS</h3>
+                <div class="filter-box">📅 1975 — 2024</div>
+            </div>
+
+            <div class="section">
+                <h3>TIPO</h3>
+                <button type="button" class="filter-box filter-box-btn active" data-tipo="ovni">🛸 OVNIs</button>
+                <button type="button" class="filter-box filter-box-btn active" data-tipo="embrujado">🔒 Embrujados</button>
+            </div>
+
+            <div class="section">
+                <h3>EXPORTAR</h3>
+                <button type="button" class="btn-generar-reporte" id="exportarPdf">⬇ PDF</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <div id="seccion-estadisticas">
+                <h2 class="title">📊 Estadísticas generales</h2>
+
+                <div class="stats-top">
+                    <div class="card">
+                        <span class="card-label">Total avistamientos OVNI</span>
+                        <span class="card-value">98.4K</span>
+                        <span class="card-sub">Registrados 1975—2024</span>
+                    </div>
+                    <div class="card">
+                        <span class="card-label">Lugares embrujados</span>
+                        <span class="card-value card-value-purple">10.2K</span>
+                        <span class="card-sub">En todo EE.UU.</span>
+                    </div>
+                    <div class="card">
+                        <span class="card-label">Estado más activo</span>
+                        <span class="card-value">New Mexico</span>
+                        <span class="card-sub">1.2 por 100k hab.</span>
+                    </div>
+                    <div class="card">
+                        <span class="card-label">Pico de actividad</span>
+                        <span class="card-value">2012</span>
+                        <span class="card-sub">Mayor cantidad de reportes</span>
+                    </div>
+                </div>
+
+                <div class="stats-bottom">
+                    <div class="chart-box">
+                        <h4 class="chart-title">Avistamientos por año</h4>
+                        <div class="bar-chart" aria-hidden="true">
+                            <span style="height:35%"></span>
+                            <span style="height:48%"></span>
+                            <span style="height:60%"></span>
+                            <span style="height:55%"></span>
+                            <span style="height:70%"></span>
+                            <span style="height:85%"></span>
+                            <span style="height:95%"></span>
+                            <span style="height:78%"></span>
+                            <span style="height:65%"></span>
+                            <span style="height:50%"></span>
+                            <span style="height:40%"></span>
+                            <span style="height:30%"></span>
+                        </div>
+                        <p class="chart-footnote">📊 Integrado desde Tableau</p>
+                    </div>
+                    <div class="chart-box">
+                        <h4 class="chart-title">Formas de OVNIs</h4>
+                        <div class="pie-chart-row">
+                            <div class="pie-chart-visual" style="background: conic-gradient(#adff2f 0% 45%, #9d8df1 45% 70%, #ea2b4b 70% 85%, #555b7c 85% 100%);"></div>
+                            <ul class="pie-legend">
+                                <li><span class="dot" style="background:#adff2f"></span> Light <strong>45%</strong></li>
+                                <li><span class="dot" style="background:#9d8df1"></span> Circle <strong>25%</strong></li>
+                                <li><span class="dot" style="background:#ea2b4b"></span> Triangle <strong>15%</strong></li>
+                                <li><span class="dot" style="background:#555b7c"></span> Otros <strong>15%</strong></li>
+                            </ul>
+                        </div>
+                        <p class="chart-footnote">📊 Integrado desde Tableau</p>
+                    </div>
+                </div>
+
+                <div class="stats-bottom">
+                    <div class="chart-box">
+                        <h4 class="chart-title">Avistamientos por estado (cada 100k hab.)</h4>
+                        <div class="bar-chart" aria-hidden="true">
+                            <span style="height:90%"></span>
+                            <span style="height:75%"></span>
+                            <span style="height:60%"></span>
+                            <span style="height:50%"></span>
+                            <span style="height:40%"></span>
+                            <span style="height:30%"></span>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <h4 class="chart-title">Lugares embrujados por estado</h4>
+                        <div class="bar-chart bar-chart-purple" aria-hidden="true">
+                            <span style="height:80%"></span>
+                            <span style="height:65%"></span>
+                            <span style="height:55%"></span>
+                            <span style="height:45%"></span>
+                            <span style="height:35%"></span>
+                            <span style="height:25%"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-box top-estados-box">
+                    <h4 class="chart-title">Top estados — avistamientos cada 100k habitantes</h4>
+                    <ul class="top-estados-list">
+                        <li>
+                            <span class="top-pos">1</span>
+                            <span class="top-nombre">New Mexico</span>
+                            <span class="top-bar"><span style="width:100%"></span></span>
+                            <span class="top-valor">1.2</span>
+                        </li>
+                        <li>
+                            <span class="top-pos">2</span>
+                            <span class="top-nombre">Oregon <em class="badge badge-ovni">OVNI</em></span>
+                            <span class="top-bar"><span style="width:92%"></span></span>
+                            <span class="top-valor">1.1</span>
+                        </li>
+                        <li>
+                            <span class="top-pos">3</span>
+                            <span class="top-nombre">Alaska <em class="badge badge-embrujado">Embrujado</em></span>
+                            <span class="top-bar top-bar-purple"><span style="width:67%"></span></span>
+                            <span class="top-valor">0.9</span>
+                        </li>
+                        <li>
+                            <span class="top-pos">4</span>
+                            <span class="top-nombre">Montana <em class="badge badge-ovni">OVNI</em></span>
+                            <span class="top-bar"><span style="width:60%"></span></span>
+                            <span class="top-valor">0.8</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

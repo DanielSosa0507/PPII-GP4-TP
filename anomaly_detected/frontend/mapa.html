@@ -1,0 +1,186 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly Detected - Mapa Interactivo</title>
+    <script>
+        (function () {
+            var hora = new Date().getHours();
+            var esDeDia = hora >= 6 && hora < 18;
+            if (esDeDia) document.documentElement.classList.add('light-theme');
+        })();
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="body-cyber">
+
+    {% include 'partials/navbar.html' with active='mapa' %}
+
+    <div class="container-mapa-layout">
+
+        <aside class="sidebar-filtros">
+
+            <div class="filtro-seccion">
+                <h3 class="filtro-titulo">FILTROS</h3>
+                <button type="button" class="btn-filtro-cyber active" data-filtro="ovni">🛸 Avistamientos OVNI</button>
+                <button type="button" class="btn-filtro-cyber active" data-filtro="embrujado">🔒 Lugares embrujados</button>
+                <button type="button" class="btn-filtro-cyber" data-filtro="militar">🏢 Bases militares</button>
+            </div>
+
+            <div class="filtro-seccion">
+                <h3 class="filtro-titulo">POR ESTADO</h3>
+                <select class="select-filtro-cyber">
+                    <option>Todos los estados</option>
+                    <option>New Mexico</option>
+                    <option>Nevada</option>
+                    <option>California</option>
+                    <option>Colorado</option>
+                    <option>Arizona</option>
+                </select>
+            </div>
+
+            <div class="filtro-seccion">
+                <h3 class="filtro-titulo">POR AÑO</h3>
+                <div class="rango-cyber-box">
+                    📅 1975 — 2024
+                </div>
+            </div>
+
+            <div class="filtro-seccion">
+                <h3 class="filtro-titulo">VISTA</h3>
+                <button type="button" class="btn-filtro-cyber" id="toggleMapaCalor">🔥 Mapa de calor</button>
+            </div>
+
+            <div class="filtro-seccion">
+                <h3 class="filtro-titulo">RECORRIDOS TEMÁTICOS</h3>
+                <div class="recorrido-card recorrido-ovni" data-recorrido="ovni">
+                    <div class="recorrido-card-header">
+                        <span class="recorrido-icono">🛸</span>
+                        <span class="recorrido-nombre">Ruta OVNI</span>
+                    </div>
+                    <div class="recorrido-stats">
+                        <span>📏 320 km</span>
+                        <span>⏱ 4h 30m</span>
+                        <span>⭐ Media</span>
+                    </div>
+                    <span class="recorrido-eventos">5 puntos de interés</span>
+                </div>
+
+                <div class="recorrido-card recorrido-embrujado" data-recorrido="embrujado">
+                    <div class="recorrido-card-header">
+                        <span class="recorrido-icono">👻</span>
+                        <span class="recorrido-nombre">Ruta Embrujados</span>
+                    </div>
+                    <div class="recorrido-stats">
+                        <span>📏 180 km</span>
+                        <span>⏱ 2h 50m</span>
+                        <span>⭐ Fácil</span>
+                    </div>
+                    <span class="recorrido-eventos">4 puntos de interés</span>
+                </div>
+
+                <div class="recorrido-card recorrido-militar" data-recorrido="militar">
+                    <div class="recorrido-card-header">
+                        <span class="recorrido-icono">🏢</span>
+                        <span class="recorrido-nombre">Ruta Militar</span>
+                        <span class="recorrido-badge-peligro">Peligroso</span>
+                    </div>
+                    <div class="recorrido-stats">
+                        <span>📏 510 km</span>
+                        <span>⏱ 6h 15m</span>
+                        <span>⭐ Difícil</span>
+                    </div>
+                    <span class="recorrido-eventos">3 puntos de interés</span>
+                </div>
+            </div>
+
+            <div class="filtro-seccion referencias-box">
+                <h3 class="filtro-titulo">REFERENCIAS</h3>
+                <div class="ref-item"><span class="dot verde"></span> OVNI</div>
+                <div class="ref-item"><span class="dot morado"></span> Lugar embrujado</div>
+                <div class="ref-item"><span class="dot rojo"></span> Alta concentración</div>
+                <div class="ref-item ref-item-calor hidden">
+                    <span class="gradiente-calor-mini"></span> Intensidad: baja → alta
+                </div>
+            </div>
+        </aside>
+
+        <main class="zona-mapa-interactivo">
+
+            <div class="buscador-mapa-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Buscar estado o ciudad..." class="input-busqueda-mapa" id="buscadorMapa">
+            </div>
+
+            <div id="map-leaflet"></div>
+
+            <div class="controles-mapa-float">
+                <button class="btn-control" id="zoomIn" type="button">+</button>
+                <button class="btn-control" id="zoomOut" type="button">−</button>
+                <button class="btn-control" id="zoomReset" type="button">🎯</button>
+            </div>
+        </main>
+
+    </div>
+
+    <dialog id="modalFichaFenomeno" class="modal-ficha-fenomeno">
+        <button type="button" class="modal-ficha-cerrar" onclick="document.getElementById('modalFichaFenomeno').close()" aria-label="Cerrar">✕</button>
+
+        <div class="modal-ficha-header">
+            <span class="badge badge-ovni">OVNI</span>
+            <h2>Roswell, New Mexico</h2>
+            <p class="modal-ficha-fecha">📍 New Mexico, EE.UU. · 1947</p>
+            <span class="tag-alerta-extrema">Actividad extrema</span>
+        </div>
+
+        <div class="modal-ficha-body">
+            <section class="modal-ficha-seccion">
+                <h3>Contexto</h3>
+                <p>El 8 de julio de 1947, un ranchero reportó haber encontrado restos de un objeto no identificado cerca de Roswell. El caso se convirtió en uno de los más estudiados de la historia ufológica, con testimonios contradictorios entre la versión oficial (un globo meteorológico) y quienes sostienen que se trató de un encubrimiento.</p>
+            </section>
+
+            <section class="modal-ficha-seccion">
+                <h3>Comentarios y experiencias</h3>
+                <div class="modal-ficha-comentario">
+                    <div class="modal-ficha-comentario-header">
+                        <strong>cazador_nocturno</strong>
+                        <span class="modal-ficha-puntuacion">⭐⭐⭐⭐⭐</span>
+                    </div>
+                    <p>Visité el museo del incidente en Roswell. La cantidad de evidencia testimonial es impresionante, más allá de lo que uno crea.</p>
+                </div>
+                <div class="modal-ficha-comentario">
+                    <div class="modal-ficha-comentario-header">
+                        <strong>testigo_frecuente</strong>
+                        <span class="modal-ficha-puntuacion">⭐⭐⭐⭐</span>
+                    </div>
+                    <p>Fui de noche al sitio exacto. No vi nada raro pero la energía del lugar es particular.</p>
+                </div>
+            </section>
+
+            <section class="modal-ficha-seccion">
+                <h3>Fenómenos relacionados</h3>
+                <p class="modal-ficha-related-caption">Otros usuarios que exploraron este sitio también vieron:</p>
+                <div class="modal-ficha-relacionados">
+                    <div class="modal-ficha-relacionado-card">
+                        <span class="ufo-icon">🛸</span>
+                        <span>Area 51, Nevada</span>
+                        <span class="modal-ficha-relacionado-rating">4.9</span>
+                    </div>
+                    <div class="modal-ficha-relacionado-card">
+                        <span class="ufo-icon">🛸</span>
+                        <span>Phoenix Lights, AZ</span>
+                        <span class="modal-ficha-relacionado-rating">4.1</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </dialog>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="{% static 'js/mapa-leaflet.js' %}"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

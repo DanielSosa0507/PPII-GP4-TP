@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly Detected - Favoritos</title>
+    <script>
+        (function () {
+            var hora = new Date().getHours();
+            var esDeDia = hora >= 6 && hora < 18;
+            if (esDeDia) document.documentElement.classList.add('light-theme');
+        })();
+    </script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="body-cyber">
+    {% include 'partials/navbar.html' with active='favoritos' %}
+
+    <main class="container">
+
+        <section class="content-header">
+            <h1 class="main-title">
+                ♡ Mis favoritos
+            </h1>
+            <div class="filter-tags">
+                <button class="tag active" data-filtro="todos">Todos</button>
+                <button class="tag" data-filtro="ovni">OVNIs</button>
+                <button class="tag" data-filtro="embrujado">Embrujados</button>
+                <button class="tag" data-filtro="visitados">Visitados</button>
+            </div>
+        </section>
+
+        <section class="cards-grid">
+
+            <div class="card card-ovni" data-tipo="ovni" data-visitado="true">
+                <span class="badge badge-ovni">OVNI</span>
+                <div class="card-image-placeholder">
+                    <span class="ufo-icon">🛸</span>
+                    <span class="card-corner-dot"></span>
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">Roswell, New Mexico</h2>
+                    <p class="card-location">📍 New Mexico, EE.UU.</p>
+                    <div class="card-footer">
+                        <span class="status status-extreme">Actividad extrema</span>
+                        <span class="rating">4.8</span>
+                    </div>
+                    <div class="visited-date">
+                        ✓ Visitado — 15/03/2025
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-haunted" data-tipo="embrujado" data-visitado="false">
+                <span class="badge badge-haunted">Embrujado</span>
+                <div class="card-image-placeholder">
+                    <span class="ghost-icon">👻</span>
+                    <span class="card-corner-dot"></span>
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">Winchester House</h2>
+                    <p class="card-location">📍 California, EE.UU.</p>
+                    <div class="card-footer">
+                        <span class="status status-high">Actividad alta</span>
+                        <span class="rating">4.5</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-ovni" data-tipo="ovni" data-visitado="true">
+                <span class="badge badge-ovni">OVNI</span>
+                <div class="card-image-placeholder">
+                    <span class="ufo-icon">🛸</span>
+                    <span class="card-corner-dot"></span>
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">Area 51, Nevada</h2>
+                    <p class="card-location">📍 Nevada, EE.UU.</p>
+                    <div class="card-footer">
+                        <span class="status status-extreme">Actividad extrema</span>
+                        <span class="rating">4.9</span>
+                    </div>
+                    <div class="visited-date">
+                        ✓ Visitado — 02/01/2026
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-haunted" data-tipo="embrujado" data-visitado="false">
+                <span class="badge badge-haunted">Embrujado</span>
+                <div class="card-image-placeholder">
+                    <span class="ghost-icon">👻</span>
+                    <span class="card-corner-dot"></span>
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">Stanley Hotel</h2>
+                    <p class="card-location">📍 Colorado, EE.UU.</p>
+                    <div class="card-footer">
+                        <span class="status status-high">Actividad alta</span>
+                        <span class="rating">4.3</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-ovni" data-tipo="ovni" data-visitado="false">
+                <span class="badge badge-ovni">OVNI</span>
+                <div class="card-image-placeholder">
+                    <span class="ufo-icon">🛸</span>
+                    <span class="card-corner-dot"></span>
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">Phoenix Lights, AZ</h2>
+                    <p class="card-location">📍 Arizona, EE.UU.</p>
+                    <div class="card-footer">
+                        <span class="status status-moderate">Actividad moderada</span>
+                        <span class="rating">4.1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-add-more">
+                <span class="empty-heart">♡</span>
+                <p>Guardá más lugares desde el mapa</p>
+            </div>
+
+        </section>
+    </main>
+
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>
