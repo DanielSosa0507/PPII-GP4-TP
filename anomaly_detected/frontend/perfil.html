@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly Detected - Mi Perfil</title>
+    <script>
+        (function () {
+            var hora = new Date().getHours();
+            var esDeDia = hora >= 6 && hora < 18;
+            if (esDeDia) document.documentElement.classList.add('light-theme');
+        })();
+    </script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="body-cyber">
+    {% include 'partials/navbar.html' with active='perfil' %}
+
+    <main class="container perfil-container">
+
+        {% if messages %}
+        <div class="login-messages">
+            {% for message in messages %}
+                <p class="login-message{% if message.tags %} login-message-{{ message.tags }}{% endif %}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <section class="perfil-header-card">
+            <div class="perfil-avatar-grande">
+                {% if usuario.foto_perfil %}
+                    <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil">
+                {% else %}
+                    <span>👤</span>
+                {% endif %}
+            </div>
+            <div class="perfil-header-info">
+                <h1>
+                    {% if usuario.nombre %}{{ usuario.nombre }} {{ usuario.apellido }}{% else %}{{ usuario.username }}{% endif %}
+                </h1>
+                <p class="perfil-username">@{{ usuario.username }}</p>
+                <span class="perfil-nivel-badge">{{ usuario.get_nivel_display }}</span>
+                {% if usuario.bio %}
+                    <p class="perfil-bio">{{ usuario.bio }}</p>
+                {% endif %}
+            </div>
+            <a href="{% url 'editar_perfil' %}" class="btn-editar-perfil">✎ Editar perfil</a>
+        </section>
+
+        <section class="perfil-stats-grid">
+            <div class="perfil-stat-card">
+                <span class="perfil-stat-numero">{{ usuario.lugares_visitados }}</span>
+                <span class="perfil-stat-label">Lugares visitados</span>
+            </div>
+            <div class="perfil-stat-card">
+                <span class="perfil-stat-numero">{{ usuario.estados_explorados }}</span>
+                <span class="perfil-stat-label">Estados explorados</span>
+            </div>
+            <div class="perfil-stat-card">
+                <span class="perfil-stat-numero">{{ usuario.fenomenos_comentados }}</span>
+                <span class="perfil-stat-label">Fenómenos comentados</span>
+            </div>
+        </section>
+
+        <section class="perfil-insignias-section">
+            <h2 class="perfil-section-title">🏅 Insignias</h2>
+            {% if usuario.insignias %}
+                <div class="perfil-insignias-grid">
+                    {% for insignia in usuario.insignias %}
+                        <div class="perfil-insignia-card">
+                            <span class="perfil-insignia-icono">{{ insignia.icono }}</span>
+                            <span class="perfil-insignia-nombre">{{ insignia.nombre }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="perfil-sin-insignias">Todavía no desbloqueaste ninguna insignia. ¡Explorá el mapa y sumá actividad para ganar tus primeras!</p>
+            {% endif %}
+        </section>
+
+        <section class="perfil-cuenta-section">
+            <h2 class="perfil-section-title">Cuenta</h2>
+            <div class="perfil-cuenta-acciones">
+                <form method="POST" action="{% url 'logout' %}" class="perfil-logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-cerrar-sesion">↪ Cerrar sesión</button>
+                </form>
+                <button type="button" class="btn-eliminar-cuenta" onclick="document.getElementById('modalEliminarCuenta').showModal()">🗑 Eliminar cuenta</button>
+            </div>
+        </section>
+
+        <dialog id="modalEliminarCuenta" class="modal-confirmacion">
+            <h3>¿Eliminar tu cuenta?</h3>
+            <p>Esta acción no se puede deshacer. Vas a perder tu perfil, tus insignias, tus favoritos y todo tu progreso en Anomaly Detected.</p>
+            <form method="POST" action="{% url 'eliminar_cuenta' %}" class="modal-confirmacion-form">
+                {% csrf_token %}
+                <button type="button" class="btn-cancel-cyber" onclick="document.getElementById('modalEliminarCuenta').close()">Cancelar</button>
+                <button type="submit" class="btn-eliminar-confirmar">Sí, eliminar mi cuenta</button>
+            </form>
+        </dialog>
+
+    </main>
+
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

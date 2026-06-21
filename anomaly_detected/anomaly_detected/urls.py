@@ -17,11 +17,34 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-
+from django.contrib.auth.views import LoginView, LogoutView
+from . import views
+from usuarios.views import perfil_view, editar_perfil_view, registro_view, eliminar_cuenta_view
+ 
 urlpatterns = [
+    # PRINCIPAL
+    path('', views.index, name='index'),
+ 
+    # ADMINISTRADOR Y AUTENTICACIÓN
     path('admin/', admin.site.urls),
+    path('login/', LoginView.as_view(template_name='login.html'), name='login'),
+    path('logout/', LogoutView.as_view(next_page='index'), name='logout'),
+    path('registro/', registro_view, name='registro'),
+    path('mapa/', views.mapa_view, name='mapa'),
+ 
+    # PERFIL DE USUARIO
+    path('perfil/', perfil_view, name='perfil'),
+    path('perfil/editar/', editar_perfil_view, name='editar_perfil'),
+    path('perfil/eliminar/', eliminar_cuenta_view, name='eliminar_cuenta'),
+ 
+    # OTRAS PAGINAS
+    path('reportes/', views.reportes, name='reportes'),
+    path('comunidad/', views.comunidad, name='comunidad'),
+    path('favoritos/', views.favoritos, name='favoritos'),
+    path('reporte/', views.reporte_formulario, name='ReportForm'),
+ 
+    # OTROS URLS
     path('api/usuarios/', include('usuarios.urls')),
     path('api/fenomenos/', include('fenomenos.urls')),
     path('api/comentarios/', include('comentarios.urls')),
 ]
-

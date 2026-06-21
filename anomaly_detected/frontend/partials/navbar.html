@@ -1,0 +1,19 @@
+{% load static %}
+<header class="navbar-superior">
+    <a href="{% url 'index' %}" class="nav-logo">
+        <span class="logo-icon">🛸</span> ANOMALY DETECTED
+    </a>
+    <nav class="nav-links">
+        <a href="{% url 'mapa' %}" class="{% if active == 'mapa' %}active{% endif %}">Mapa</a>
+        <a href="{% url 'reportes' %}" class="{% if active == 'reportes' %}active{% endif %}">Reportes</a>
+        <a href="{% url 'comunidad' %}" class="{% if active == 'comunidad' %}active{% endif %}">Comunidad</a>
+        <a href="{% url 'favoritos' %}" class="{% if active == 'favoritos' %}active{% endif %}">Favoritos</a>
+    </nav>
+    <div class="nav-user">
+        {% if user.is_authenticated %}
+            <a href="{% url 'perfil' %}" class="user-avatar" title="Mi perfil">👤</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="user-avatar" title="Iniciar sesión">👤</a>
+        {% endif %}
+    </div>
+</header>

@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly Detected - Registrarse</title>
+    <script>
+        (function () {
+            var hora = new Date().getHours();
+            var esDeDia = hora >= 6 && hora < 18;
+            if (esDeDia) document.documentElement.classList.add('light-theme');
+        })();
+    </script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <div class="login-left">
+            <div class="login-left-content">
+                <div class="login-icon-circle">
+                    <span class="login-icon">🛸</span>
+                </div>
+                <h1 class="login-brand">ANOMALY<br>DETECTED</h1>
+                <p class="login-tagline">Sumate a la comunidad y empezá<br>a explorar fenómenos paranormales<br>en EE.UU.</p>
+                <a href="{% url 'index' %}" class="login-quote-link">¿La verdad está ahí afuera? →</a>
+            </div>
+        </div>
+        <div class="login-right">
+            <div class="login-form-wrapper">
+                <h2>Creá tu cuenta</h2>
+                <p class="login-subtitle">Es gratis y te lleva menos de un minuto</p>
+
+                {% if messages %}
+                <div class="login-messages">
+                    {% for message in messages %}
+                        <p class="login-message{% if message.tags %} login-message-{{ message.tags }}{% endif %}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="POST" action="" class="login-form">
+                    {% csrf_token %}
+
+                    <div class="login-field">
+                        <label for="username">Usuario</label>
+                        <div class="login-input-wrapper">
+                            <span class="login-input-icon">👤</span>
+                            <input type="text" id="username" name="username" placeholder="cazador_nocturno" value="{{ username|default:'' }}" required autofocus>
+                        </div>
+                    </div>
+
+                    <div class="login-field">
+                        <label for="email">Correo electrónico</label>
+                        <div class="login-input-wrapper">
+                            <span class="login-input-icon">✉</span>
+                            <input type="email" id="email" name="email" placeholder="usuario@email.com" value="{{ email|default:'' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="login-field">
+                        <label for="password">Contraseña</label>
+                        <div class="login-input-wrapper">
+                            <span class="login-input-icon">🔒</span>
+                            <input type="password" id="password" name="password" placeholder="Mínimo 8 caracteres" required>
+                        </div>
+                    </div>
+
+                    <div class="login-field">
+                        <label for="password_confirm">Repetir contraseña</label>
+                        <div class="login-input-wrapper">
+                            <span class="login-input-icon">🔒</span>
+                            <input type="password" id="password_confirm" name="password_confirm" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="login-submit-btn">Crear cuenta</button>
+
+                    <div class="login-divider"><span>o continuar con</span></div>
+
+                    <button type="button" class="login-google-btn">
+                        <span class="google-icon">G</span> Google
+                    </button>
+
+                    <p class="login-register-text">¿Ya tenés cuenta? <a href="{% url 'login' %}">Iniciar sesión</a></p>
+                    <a href="{% url 'index' %}" class="login-skip-link">Continuar sin cuenta →</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>
