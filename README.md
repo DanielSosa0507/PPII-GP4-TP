@@ -1,6 +1,7 @@
 <p align="center">
   <img src="./anomaly_detected/ufo-header.svg" alt="OVNI" width="100%">
 </p> 
+
 ## Anomaly Detected
  
 > Red social geográfica para el reporte, exploración y debate de fenómenos paranormales e inexplicados.
