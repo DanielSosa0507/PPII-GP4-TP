@@ -1,8 +1,9 @@
 <p align="center">
   <img src="./anomaly_detected/ufo-header.svg" alt="OVNI" width="100%">
 </p> 
+
 ## Anomaly Detected
- 
+
 > Red social geográfica para el reporte, exploración y debate de fenómenos paranormales e inexplicados.
  
 ![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python)
@@ -33,7 +34,7 @@ Los usuarios pueden:
 |------|-----------|
 | Backend | Python 3.13 + Django 5.x |
 | API | Django REST Framework |
-| Base de datos | SQLite (dev) |
+| Base de datos | SQLite (dev)/PostgreSQL |
 | Autenticación | Token Authentication (DRF) |
 | PDF | ReportLab |
 | Mapa | Leaflet.js |
