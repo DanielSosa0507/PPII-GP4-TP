@@ -139,13 +139,22 @@ body {
 
 .hero-image svg,
 .hero-image img {
-    width: 300px;
-    height: auto;
+    width: 220px;
+    height: 220px;
     max-width: 100%;
     margin: 0 auto;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(173, 255, 47, 0.45);
+    box-shadow: 0 0 30px rgba(173, 255, 47, 0.3);
+    background-color: var(--white);
 }
 .hero-image svg {
     display: block;
+}
+html.light-theme .hero-image img {
+    border-color: rgba(46, 125, 50, 0.35);
+    box-shadow: 0 0 30px rgba(46, 125, 50, 0.2);
 }
 
 .hero h1 {
