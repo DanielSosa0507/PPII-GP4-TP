@@ -2,8 +2,12 @@ from rest_framework import generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import HttpResponse
-from .models import Fenomeno, Validacion
-from .serializers import FenomenoSerializer, ValidacionSerializer
+from django.shortcuts import get_object_or_404
+from .models import Fenomeno, Validacion, Favorito, Visita, Puntuacion, Enlace
+from .serializers import (
+    FenomenoSerializer, ValidacionSerializer, FavoritoSerializer,
+    VisitaSerializer, PuntuacionSerializer, EnlaceSerializer,
+)
 from reportlab.pdfgen import canvas
 
 
@@ -33,12 +37,74 @@ class ValidacionView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(usuario=self.request.user)
 
+class FavoritoListCreateView(generics.ListCreateAPIView):
+    serializer_class = FavoritoSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Favorito.objects.filter(usuario=self.request.user).select_related('fenomeno')
+
+    def perform_create(self, serializer):
+        serializer.save(usuario=self.request.user)
+
+class FavoritoDeleteView(generics.DestroyAPIView):
+    serializer_class = FavoritoSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Favorito.objects.filter(usuario=self.request.user)
+
+class VisitaListCreateView(generics.ListCreateAPIView):
+    serializer_class = VisitaSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Visita.objects.filter(usuario=self.request.user).select_related('fenomeno')
+
+    def perform_create(self, serializer):
+        serializer.save(usuario=self.request.user)
+
+class VisitaDeleteView(generics.DestroyAPIView):
+    serializer_class = VisitaSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Visita.objects.filter(usuario=self.request.user)
+
+class PuntuacionView(generics.CreateAPIView):
+    serializer_class = PuntuacionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # POST de nuevo sobre el mismo fenómeno actualiza el voto en vez de duplicarlo.
+        instance, _ = Puntuacion.objects.update_or_create(
+            fenomeno_id=self.kwargs['pk'],
+            usuario=self.request.user,
+            defaults={'valor': serializer.validated_data['valor']},
+        )
+        serializer.instance = instance
+
+class EnlaceListCreateView(generics.ListCreateAPIView):
+    serializer_class = EnlaceSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+    def get_queryset(self):
+        return Enlace.objects.filter(fenomeno=self.kwargs['pk'])
+
+    def perform_create(self, serializer):
+        serializer.save(fenomeno_id=self.kwargs['pk'])
+
+class EnlaceDeleteView(generics.DestroyAPIView):
+    serializer_class = EnlaceSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    queryset = Enlace.objects.all()
+
 class DescargaPDFView(APIView):
     def get(self, request, pk):
-        fenomeno = Fenomeno.objects.get(pk=pk)
+        fenomeno = get_object_or_404(Fenomeno, pk=pk)
 
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{fenomeno.titulo}.pdf"'
+        response['Content-Disposition'] = f'inline; filename="{fenomeno.titulo}.pdf"'
 
         p = canvas.Canvas(response)
         p.setFont("Helvetica-Bold", 16)

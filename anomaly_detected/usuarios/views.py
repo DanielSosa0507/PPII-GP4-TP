@@ -1,6 +1,7 @@
 from rest_framework import generics, permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, logout
 from django.contrib.auth.decorators import login_required
@@ -21,8 +22,13 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
 
 
+class LoginThrottle(AnonRateThrottle):
+    rate = '10/min'
+
+
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [LoginThrottle]
 
     def post(self, request):
         username = request.data.get('username')

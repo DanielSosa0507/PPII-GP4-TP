@@ -131,8 +131,8 @@ function detectarEventoActivo() {
     if (ahora.getMonth() === 9) {
         return {
             clase: 'halloween',
-            mensaje: '🎃 Modo Halloween activado — Ruta embrujada especial todo octubre',
-            iconos: ['🎃', '🦇', '👻', '🕸️'],
+            mensaje: 'Modo Halloween activado — Ruta embrujada especial todo octubre',
+            iconos: [],
         };
     }
 
@@ -140,8 +140,8 @@ function detectarEventoActivo() {
     if (esLunaLlenaHoy(ahora)) {
         return {
             clase: 'luna-llena',
-            mensaje: '🌕 Noche de Luna llena — mayor visibilidad nocturna para avistamientos hoy',
-            iconos: ['🌕', '✨', '🌌', '👁️'],
+            mensaje: 'Noche de Luna llena — mayor visibilidad nocturna para avistamientos hoy',
+            iconos: [],
         };
     }
 
@@ -171,6 +171,8 @@ function insertarBannerEvento(evento) {
 }
 
 function insertarDecoracionEvento(evento) {
+    if (!evento.iconos.length) return;
+
     var capa = document.createElement('div');
     capa.className = 'decoracion-evento';
     capa.setAttribute('aria-hidden', 'true');
@@ -367,17 +369,6 @@ function initReportesSidebarFiltros() {
             btn.classList.toggle('active');
         });
     });
-
-    var exportarBtn = document.getElementById('exportarPdf');
-    if (exportarBtn) {
-        exportarBtn.addEventListener('click', function () {
-            var original = exportarBtn.textContent;
-            exportarBtn.textContent = '✓ Generando...';
-            setTimeout(function () {
-                exportarBtn.textContent = original;
-            }, 1500);
-        });
-    }
 }
 
 /* ------------------------------------------------------------

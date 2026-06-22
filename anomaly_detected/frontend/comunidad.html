@@ -22,139 +22,21 @@
     <main class="page-container">
         <section class="feed">
             <div class="community-header">
-                <h2>🛸 Comunidad</h2>
-                <div class="tabs">
-                    <button class="tab active" data-tab="teorias">Teorías</button>
-                    <button class="tab" data-tab="experiencias">Experiencias</button>
-                    <button class="tab" data-tab="eventos">Eventos</button>
-                </div>
+                <h2>Comunidad</h2>
             </div>
 
             <div class="post-creator">
                 <div class="avatar">👤</div>
-                <textarea id="nuevaPublicacion" placeholder="Compartí tu teoría o experiencia paranormal..."></textarea>
-                <button class="btn-publish" type="button">Publicar</button>
+                <div class="post-creator-campos">
+                    <input type="text" id="teoriaTitulo" placeholder="Título de tu teoría...">
+                    <textarea id="teoriaContenido" placeholder="Compartí tu teoría sobre algún fenómeno..."></textarea>
+                    <button class="btn-publish" type="button" id="btnPublicarTeoria">Publicar</button>
+                </div>
             </div>
 
-            <div id="feed-posts">
-
-            <article class="post-card" data-tab="teorias">
-                <div class="user-info">
-                    <div class="avatar">👤</div>
-                    <div class="meta">
-                        <strong>cazador_nocturno</strong> <span class="user-tag">Investigador</span>
-                        <small>Hace 2 horas</small>
-                    </div>
-                </div>
-                <p>Creo que el aumento de avistamientos en 2012 está directamente relacionado con el ciclo solar. Los campos electromagnéticos podrían estar atrayendo objetos no identificados hacia zonas específicas...</p>
-                <div class="tags"><span class="tag">#OVNI</span> <span class="tag">#NewMexico</span></div>
-                <div class="actions">
-                    <button class="btn-vote btn-vote-creible" type="button">Creíble (12)</button>
-                    <button class="btn-vote" type="button">Dudoso (4)</button>
-                    <button class="btn-vote" type="button">Muy extraño (7)</button>
-                </div>
-                <div class="stats">
-                    <span>👍 23</span> <span>💬 8 respuestas</span> <span>🔗 Compartir</span>
-                </div>
-            </article>
-
-            <article class="post-card" data-tab="teorias">
-                <div class="user-info">
-                    <div class="avatar">👤</div>
-                    <div class="meta">
-                        <strong>testigo_frecuente</strong> <span class="user-tag">Cazador paranormal</span>
-                        <small>Hace 5 horas</small>
-                    </div>
-                </div>
-                <p>Visité el Stanley Hotel la semana pasada. La habitación 217 tiene una energía muy particular, escuché pasos a las 3am y la temperatura bajó de golpe...</p>
-                <div class="tags"><span class="tag">#LugarEmbrujado</span> <span class="tag">#StanleyHotel</span></div>
-                <div class="actions">
-                    <button class="btn-vote" type="button">Muy extraño (19)</button>
-                    <button class="btn-vote btn-vote-creible" type="button">Creíble (6)</button>
-                </div>
-                <div class="stats">
-                    <span>👍 41</span> <span>💬 15 respuestas</span> <span>🔗 Compartir</span>
-                </div>
-            </article>
-
-            <article class="post-card" data-tab="experiencias">
-                <div class="user-info">
-                    <div class="avatar">👤</div>
-                    <div class="meta">
-                        <strong>explorador_x</strong> <span class="user-tag">Explorador nocturno</span>
-                        <small>Hace 1 día</small>
-                    </div>
-                </div>
-                <p>Estuve en Roswell el mes pasado. De noche el cielo es diferente — hay una quietud extraña y los lugareños no hablan mucho del tema cuando les preguntás. Eso en sí ya me generó escalofríos.</p>
-                <div class="tags"><span class="tag">#Roswell</span> <span class="tag">#Experiencia</span></div>
-                <div class="actions">
-                    <button class="btn-vote btn-vote-creible" type="button">Creíble (31)</button>
-                    <button class="btn-vote" type="button">Muy extraño (14)</button>
-                </div>
-                <div class="stats">
-                    <span>👍 57</span> <span>💬 12 respuestas</span> <span>🔗 Compartir</span>
-                </div>
-            </article>
-
-            <article class="post-card" data-tab="experiencias">
-                <div class="user-info">
-                    <div class="avatar">👤</div>
-                    <div class="meta">
-                        <strong>sombra_azul</strong> <span class="user-tag">Testigo frecuente</span>
-                        <small>Hace 3 días</small>
-                    </div>
-                </div>
-                <p>Vi algo sobre el río de la Plata a las 2am. Era una luz azulada que se movía sin hacer ruido, demasiado lenta para ser un avión y demasiado rápida para ser un barco. Duró unos 4 minutos.</p>
-                <div class="tags"><span class="tag">#RíoDeLaPlata</span> <span class="tag">#LuzAzul</span></div>
-                <div class="actions">
-                    <button class="btn-vote btn-vote-creible" type="button">Creíble (8)</button>
-                    <button class="btn-vote" type="button">Dudoso (3)</button>
-                    <button class="btn-vote" type="button">Muy extraño (22)</button>
-                </div>
-                <div class="stats">
-                    <span>👍 33</span> <span>💬 6 respuestas</span> <span>🔗 Compartir</span>
-                </div>
-            </article>
-
-            <article class="post-card" data-tab="eventos">
-                <div class="user-info">
-                    <div class="avatar">👤</div>
-                    <div class="meta">
-                        <strong>cazador_nocturno</strong> <span class="user-tag">Investigador</span>
-                        <small>Hace 4 días</small>
-                    </div>
-                </div>
-                <p>🎃 <strong>Ruta embrujada — Halloween 31 OCT</strong>: organizamos un recorrido grupal por los 3 lugares más activos de New Mexico. Punto de encuentro: Roswell centro, 21:00hs. Anotate en los comentarios.</p>
-                <div class="tags"><span class="tag">#Halloween</span> <span class="tag">#Evento</span> <span class="tag">#Roswell</span></div>
-                <div class="actions">
-                    <button class="btn-vote btn-vote-creible" type="button">Me apunto (18)</button>
-                    <button class="btn-vote" type="button">Me interesa (9)</button>
-                </div>
-                <div class="stats">
-                    <span>👍 27</span> <span>💬 18 respuestas</span> <span>🔗 Compartir</span>
-                </div>
-            </article>
-
-            <article class="post-card" data-tab="eventos">
-                <div class="user-info">
-                    <div class="avatar">👤</div>
-                    <div class="meta">
-                        <strong>testigo_frecuente</strong> <span class="user-tag">Cazador paranormal</span>
-                        <small>Hace 1 semana</small>
-                    </div>
-                </div>
-                <p>🌕 <strong>Noche de avistamientos — Luna llena 15 JUL</strong>: nos juntamos en Roswell a observar el cielo durante la noche de luna llena. Traé binoculares y cámara. La visibilidad nocturna va a ser óptima.</p>
-                <div class="tags"><span class="tag">#LunaLlena</span> <span class="tag">#Evento</span> <span class="tag">#Avistamiento</span></div>
-                <div class="actions">
-                    <button class="btn-vote btn-vote-creible" type="button">Me apunto (24)</button>
-                    <button class="btn-vote" type="button">Me interesa (11)</button>
-                </div>
-                <div class="stats">
-                    <span>👍 35</span> <span>💬 21 respuestas</span> <span>🔗 Compartir</span>
-                </div>
-            </article>
-
-            </div><!-- #feed-posts -->
+            <div id="teoriasFeed">
+                <p class="ficha-vacio">Cargando teorías…</p>
+            </div>
         </section>
 
         <aside class="sidebar-comunidad">
@@ -164,18 +46,10 @@
                 <p><strong>15 JUL</strong> - Noche de avistamientos, Roswell</p>
                 <p><strong>20 AGO</strong> - Exploración Area 51</p>
             </div>
-            <div class="sidebar-box">
-                <h3>TOP INVESTIGADORES</h3>
-                <ol>
-                    <li>1. cazador_nocturno <span>980 pts</span></li>
-                    <li>2. testigo_frecuente <span>740 pts</span></li>
-                    <li>3. explorador_x <span>610 pts</span></li>
-                    <li>4. sombra_azul <span>480 pts</span></li>
-                </ol>
-            </div>
         </aside>
     </main>
 
     <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/comunidad.js' %}"></script>
 </body>
 </html>

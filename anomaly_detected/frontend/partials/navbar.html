@@ -1,7 +1,14 @@
 {% load static %}
 <header class="navbar-superior">
     <a href="{% url 'index' %}" class="nav-logo">
-        <span class="logo-icon">🛸</span> ANOMALY DETECTED
+        <svg width="36" height="18" viewBox="0 4 32 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-icon">
+            <ellipse cx="16" cy="14" rx="13" ry="3.2" fill="#2E7D32"/>
+            <ellipse cx="16" cy="11.5" rx="8" ry="4.5" fill="#4CAF50"/>
+            <ellipse cx="16" cy="9.5" rx="4" ry="2.6" fill="#A5D6A7"/>
+            <circle cx="8" cy="14" r="1.4" fill="#2E7D32"/>
+            <circle cx="16" cy="15.2" r="1.4" fill="#2E7D32"/>
+            <circle cx="24" cy="14" r="1.4" fill="#2E7D32"/>
+        </svg> ANOMALY DETECTED
     </a>
     <nav class="nav-links">
         <a href="{% url 'mapa' %}" class="{% if active == 'mapa' %}active{% endif %}">Mapa</a>
