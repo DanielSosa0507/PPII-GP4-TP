@@ -266,17 +266,6 @@ function initReportesSidebarFiltros() {
             btn.classList.toggle('active');
         });
     });
-
-    var exportarBtn = document.getElementById('exportarPdf');
-    if (exportarBtn) {
-        exportarBtn.addEventListener('click', function () {
-            var original = exportarBtn.textContent;
-            exportarBtn.textContent = '✓ Generando...';
-            setTimeout(function () {
-                exportarBtn.textContent = original;
-            }, 1500);
-        });
-    }
 }
 
 /* ------------------------------------------------------------
