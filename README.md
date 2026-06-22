@@ -3,7 +3,7 @@
 </p> 
 
 ## Anomaly Detected
- 
+
 > Red social geográfica para el reporte, exploración y debate de fenómenos paranormales e inexplicados.
  
 ![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python)
