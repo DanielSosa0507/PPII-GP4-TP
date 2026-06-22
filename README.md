@@ -169,7 +169,7 @@ Authorization: Token aqui-va-el-token
  
 ## 🗺️ Mapa Interactivo
  
-Cada fenómeno tiene coordenadas `latitud` y `longitud`. El frontend los renderiza con **Leaflet.js**:
+Cada fenómeno tiene coordenadas 'latitud' y 'longitud'. El frontend los renderiza con **Leaflet.js**:
  
 ```javascript
 L.marker([fenomeno.latitud, fenomeno.longitud])
