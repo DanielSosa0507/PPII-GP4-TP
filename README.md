@@ -26,7 +26,7 @@ Los usuarios pueden:
 - 🧠 Publicar teorías y votar las de otros
 ---
  
-## 🛠️ Stack Tecnológico
+##  Stack Tecnológico
  
 | Capa | Tecnología |
 |------|-----------|
@@ -41,7 +41,7 @@ Los usuarios pueden:
  
 ---
  
-## 📁 Estructura del Proyecto
+##  Estructura del Proyecto
  
 ```
 PPII-GP4-TP/
@@ -60,7 +60,7 @@ PPII-GP4-TP/
  
 ---
  
-## 🚀 Instalación y Setup
+##  Instalación y Setup
  
 ### 1. Clonar el repositorio
  
@@ -106,7 +106,7 @@ Abrí `http://127.0.0.1:8000` en el navegador.
  
 ---
  
-## 🔌 Endpoints de la API
+##  Endpoints de la API
  
 Base URL: `http://127.0.0.1:8000`
  
@@ -148,7 +148,7 @@ Base URL: `http://127.0.0.1:8000`
  
 ---
  
-## 🔐 Autenticación
+##  Autenticación
  
 Se usa **Token Authentication**. Al hacer login se recibe un token que debe enviarse en cada request protegido:
  
@@ -177,19 +177,18 @@ L.marker([fenomeno.latitud, fenomeno.longitud])
  
 ---
  
-## 👥 Equipo — Grupo 4
+## Equipo — Grupo 4
  
 | Nombre | Rol |
 |--------|-----|
 | Daniel Sosa | Backend (Django + DRF) |
-| [Compañero 2] | Frontend |
-| [Compañero 3] | Frontend |
-| [Compañero 4] | Diseño UX/UI |
-| [Compañero 5] | Datos & Dashboards |
+| Stefany Rodriguez| Frontend |
+| Sofia Maid | Diseño UX/UI |
+| Sandra Lopez | Datos & Dashboards |
  
 ---
  
-## 📋 Pendiente
+##  Pendiente
  
 - [ ] Login con Google (OAuth2) — requiere credenciales de Google Cloud Console
 - [ ] Suite de tests automatizados
