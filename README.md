@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./ufo-header.svg" alt="OVNI" width="100%">
+  <img src="./anomaly_detected/ufo-header.svg" alt="OVNI" width="100%">
 </p> 
 ## Anomaly Detected
  
