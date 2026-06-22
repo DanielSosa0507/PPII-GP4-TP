@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.db.models import Count
+from django.db.models import Avg, Count
 from .models import Fenomeno, Validacion, Favorito, Visita, Puntuacion, Enlace, BaseMilitar
 from .serializers import (
     FenomenoSerializer, ValidacionSerializer, FavoritoSerializer,
@@ -21,7 +21,10 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 class FenomenoListCreateView(generics.ListCreateAPIView):
     serializer_class = FenomenoSerializer
     permission_classes = [IsAdminOrReadOnly]
-    queryset = Fenomeno.objects.all()
+    queryset = Fenomeno.objects.annotate(
+        puntuacion_total_anotada=Count('puntuaciones'),
+        puntuacion_promedio_anotada=Avg('puntuaciones__valor'),
+    )
 
     def perform_create(self, serializer):
         serializer.save(creado_por=self.request.user)
@@ -29,7 +32,10 @@ class FenomenoListCreateView(generics.ListCreateAPIView):
 class FenomenoDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = FenomenoSerializer
     permission_classes = [IsAdminOrReadOnly]
-    queryset = Fenomeno.objects.all()
+    queryset = Fenomeno.objects.annotate(
+        puntuacion_total_anotada=Count('puntuaciones'),
+        puntuacion_promedio_anotada=Avg('puntuaciones__valor'),
+    )
 
 class ValidacionView(generics.CreateAPIView):
     serializer_class = ValidacionSerializer

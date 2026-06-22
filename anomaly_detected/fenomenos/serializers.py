@@ -12,11 +12,16 @@ class FenomenoSerializer(serializers.ModelSerializer):
         read_only_fields = ['creado_por', 'creado_en']
 
     def get_puntuacion_promedio(self, obj):
-        promedio = obj.puntuaciones.aggregate(models.Avg('valor'))['valor__avg']
+        # Si la queryset viene anotada (ver FenomenoListCreateView/DetailView), evita
+        # una query por fenomeno; si no, calcula al vuelo (caso de fenomeno_detalle anidado).
+        promedio = getattr(obj, 'puntuacion_promedio_anotada', None)
+        if promedio is None:
+            promedio = obj.puntuaciones.aggregate(models.Avg('valor'))['valor__avg']
         return round(promedio, 1) if promedio else None
 
     def get_puntuacion_total(self, obj):
-        return obj.puntuaciones.count()
+        total = getattr(obj, 'puntuacion_total_anotada', None)
+        return total if total is not None else obj.puntuaciones.count()
 
 class ValidacionSerializer(serializers.ModelSerializer):
     class Meta:
