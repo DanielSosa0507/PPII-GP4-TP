@@ -1633,23 +1633,19 @@ html:not(.light-theme) .login-left {
 }
 
 .login-icon-circle {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    border: 2px solid #adff2f;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 28px;
-    box-shadow: 0 0 24px rgba(173, 255, 47, 0.25);
+    margin: 0 auto 20px;
 }
 
 .login-icon {
     font-size: 2.2rem;
 }
 .login-icon-circle img.login-icon {
-    width: 70px;
-    height: 70px;
+    width: 200px;
+    height: auto;
+    max-width: 100%;
     object-fit: contain;
 }
 
