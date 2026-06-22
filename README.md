@@ -34,7 +34,7 @@ Los usuarios pueden:
 |------|-----------|
 | Backend | Python 3.13 + Django 5.x |
 | API | Django REST Framework |
-| Base de datos | SQLite (dev) |
+| Base de datos | SQLite (dev)/PostgreSQL |
 | Autenticación | Token Authentication (DRF) |
 | PDF | ReportLab |
 | Mapa | Leaflet.js |
