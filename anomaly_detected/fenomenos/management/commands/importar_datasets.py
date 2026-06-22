@@ -130,7 +130,7 @@ class Command(BaseCommand):
 
                 ubicacion = (fila.get('location') or '').strip()
                 ciudad = (fila.get('city') or '').strip()
-                titulo = ubicacion or ciudad or 'Lugar embrujado'
+                titulo = (ubicacion or ciudad or 'Lugar embrujado')[:200]
 
                 nuevos.append(Fenomeno(
                     titulo=titulo,

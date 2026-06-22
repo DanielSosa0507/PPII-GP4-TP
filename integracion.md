@@ -190,6 +190,10 @@ Las descripciones de `haunted_places`/`summary` de OVNIs vienen en inglés del d
 - **`fenomenos/management/commands/traducir_descripciones.py`** (nuevo, usa `deep-translator` + Google Translate gratuito, sin API key): traduce de a uno, con pausa entre pedidos para no saturar el servicio, y va marcando `descripcion_traducida=True` a medida que traduce — así se puede interrumpir y retomar sin repetir trabajo ni perder lo ya traducido.
 - **Importante**: no se pudo correr desde el entorno donde yo ejecuto comandos — tiene la salida a internet bloqueada (ni siquiera pypi.org respondía a una conexión directa), así que **lo corrió Sandra desde su propia terminal**. Mientras corre (tarda bastante, ~12.300 descripciones), el resto del sitio sigue funcionando pero un poco más lento por la contención de escritura en sqlite.
 
+## Repo de deploy
+
+Se creó `https://github.com/SandritaLopez/anomaly-detected-django-postgresql` (privado) como espejo exclusivo para que Render despliegue desde ahí. El repo del equipo (`DanielSosa0507/PPII-GP4-TP`) sigue siendo el repo principal — este es solo un remoto adicional (`deploy`) agregado en este mismo checkout, sin tocar `origin`. Todo el trabajo de esta sesión se subió ahí en un solo commit.
+
 ## Pendiente / próximos pasos
 - Conectar la base de datos real (Postgres en Supabase, según lo charlado) vía `DATABASE_URL`, y correr `migrate` + `importar_datasets` ahí.
 - Deploy en Render (no se encontró `Procfile` ni configuración de Render todavía en este checkout).
