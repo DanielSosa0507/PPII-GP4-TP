@@ -1,0 +1,452 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly Detected - Panel de Administración</title>
+        <link rel="icon" type="image/png" href="{% static 'img/Logo_final.png' %}">
+    <script>
+        (function () {
+            var hora = new Date().getHours();
+            var esDeDia = hora >= 6 && hora < 18;
+            if (esDeDia) document.documentElement.classList.add('light-theme');
+        })();
+    </script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        /* CSS crítico del panel — garantiza el layout aunque el caché interfiera */
+        html, body.admin-body { height: 100%; margin: 0; overflow: hidden; }
+        .admin-layout {
+            display: grid !important;
+            grid-template-columns: 220px 1fr !important;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .admin-sidebar {
+            background-color: #07080f !important;
+            border-right: 1px solid #14162e !important;
+            height: 100vh;
+            overflow-y: auto;
+            display: flex !important;
+            flex-direction: column;
+        }
+        .admin-main {
+            overflow-y: auto;
+            padding: 28px 32px;
+            background-color: #05060f !important;
+        }
+        .admin-panel-section { display: none !important; }
+        .admin-panel-section.active { display: block !important; }
+        .admin-resumen-grid {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .admin-resumen-card {
+            background-color: #0b0c16 !important;
+            border: 1px solid #171933 !important;
+            border-radius: 10px;
+            padding: 18px 20px;
+        }
+        .admin-tabla-wrapper {
+            background-color: #0b0c16 !important;
+            border: 1px solid #171933 !important;
+            border-radius: 10px;
+            overflow: hidden;
+            overflow-x: auto;
+        }
+        .admin-tabla { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        .admin-tabla th { padding: 12px 16px; text-align: left; color: #7e84a3; font-size: 0.72rem; font-weight: bold; text-transform: uppercase; background: rgba(255,255,255,0.03); border-bottom: 1px solid #171933; }
+        .admin-tabla td { padding: 13px 16px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+        .admin-tabla tbody tr:last-child td { border-bottom: none; }
+        .admin-nav { padding: 16px 10px; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+        .admin-nav-link { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; color: #7e84a3; text-decoration: none; font-size: 0.82rem; cursor: pointer; background: transparent; border: none; width: 100%; text-align: left; }
+        .admin-nav-link.active { background: rgba(173,255,47,0.08) !important; color: #adff2f !important; }
+        .admin-nav-seccion { font-size: 0.65rem; color: #434768; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; padding: 10px 8px 4px; margin: 0; }
+        .admin-nav-footer { margin-top: auto; padding-top: 12px; border-top: 1px solid #14162e; }
+        .admin-navbar-badge { background: rgba(173,255,47,0.12); color: #adff2f; font-size: 0.65rem; font-weight: bold; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(173,255,47,0.3); }
+        .admin-sidebar-logo { padding: 18px 16px 14px; border-bottom: 1px solid #14162e; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .admin-resumen-numero { font-size: 1.8rem; font-weight: bold; color: #fff; margin-bottom: 6px; }
+        .admin-numero-amarillo { color: #f7a01b !important; }
+        .admin-numero-verde { color: #adff2f !important; }
+        .admin-resumen-label { font-size: 0.75rem; color: #7e84a3; margin-bottom: 8px; }
+        .admin-resumen-sub { font-size: 0.72rem; color: #7e84a3; }
+        .admin-sub-verde { color: #adff2f !important; }
+        .admin-filtros-tabla { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+        .admin-buscador { flex: 1; min-width: 180px; max-width: 280px; }
+        .admin-filtros-tipo { display: flex; gap: 6px; }
+        .admin-filtro-btn { background: transparent; border: 1px solid #2a2e45; color: #7e84a3; padding: 7px 16px; border-radius: 20px; font-size: 0.78rem; cursor: pointer; }
+        .admin-filtro-btn.active { border-color: #adff2f; color: #adff2f; background: rgba(173,255,47,0.06); }
+        .admin-tipo-badge, .admin-estado-badge { font-size: 0.68rem; font-weight: bold; padding: 2px 10px; border-radius: 10px; white-space: nowrap; }
+        .badge-ovni { background: rgba(173,255,47,0.12); color: #adff2f; }
+        .badge-embrujado { background: rgba(157,141,241,0.15); color: #9d8df1; }
+        .admin-estado-pendiente { background: rgba(247,160,27,0.12); color: #f7a01b; }
+        .admin-estado-aprobado { background: rgba(43,234,75,0.1); color: #2bea4b; }
+        .admin-estado-rechazado { background: rgba(234,43,75,0.12); color: #ea2b4b; }
+        .admin-td-acciones { display: flex; gap: 6px; align-items: center; }
+        .btn-accion { width: 28px; height: 28px; border-radius: 6px; border: 1px solid; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center; background: transparent; }
+        .btn-accion-aprobar { border-color: #2bea4b; color: #2bea4b; }
+        .btn-accion-rechazar { border-color: #ea2b4b; color: #ea2b4b; }
+        .btn-accion-editar { border-color: #434768; color: #7e84a3; }
+        .admin-main-title { font-size: 1.15rem; color: #fff; margin-bottom: 20px; }
+        .admin-reportes-titulo { font-size: 1rem; color: #fff; margin-bottom: 14px; }
+        .admin-nav-logout { color: #ea2b4b !important; }
+        @media (max-width: 600px) {
+            html, body.admin-body { overflow: auto; height: auto; }
+            .admin-layout { grid-template-columns: 1fr !important; height: auto; }
+            .admin-sidebar { height: auto; }
+            .admin-resumen-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+    </style>
+</head>
+<body class="body-cyber admin-body">
+
+    <div class="admin-layout">
+
+        <!-- SIDEBAR IZQUIERDA -->
+        <aside class="admin-sidebar">
+            <div class="admin-sidebar-logo">
+                <a href="{% url 'index' %}" class="nav-logo">
+                    <span class="logo-icon">🛸</span> ANOMALY DETECTED
+                </a>
+                <span class="admin-navbar-badge">Admin</span>
+            </div>
+
+            <nav class="admin-nav">
+                <p class="admin-nav-seccion">ADMINISTRACIÓN</p>
+                <a href="#" class="admin-nav-link active" data-panel="panel">
+                    <span>▦</span> Panel
+                </a>
+                <a href="#" class="admin-nav-link" data-panel="pendientes">
+                    <span>⏳</span> Pendientes
+                    <span class="admin-nav-badge">12</span>
+                </a>
+                <a href="#" class="admin-nav-link" data-panel="usuarios">
+                    <span>👤</span> Usuarios
+                </a>
+                <a href="#" class="admin-nav-link" data-panel="comentarios">
+                    <span>💬</span> Comentarios
+                </a>
+
+                <p class="admin-nav-seccion">CONTENIDO</p>
+                <a href="#" class="admin-nav-link" data-panel="ovnis">
+                    <span>🛸</span> OVNIs
+                </a>
+                <a href="#" class="admin-nav-link" data-panel="embrujados">
+                    <span>🔒</span> Embrujados
+                </a>
+
+                <div class="admin-nav-footer">
+                    <form method="POST" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="admin-nav-link admin-nav-logout">
+                            <span>↪</span> Cerrar sesión
+                        </button>
+                    </form>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="admin-main">
+
+            <!-- PANEL: RESUMEN GENERAL -->
+            <div class="admin-panel-section active" id="panel-panel">
+                <h2 class="admin-main-title">⊕ Resumen general</h2>
+
+                <div class="admin-resumen-grid">
+                    <div class="admin-resumen-card">
+                        <p class="admin-resumen-label">Usuarios registrados</p>
+                        <p class="admin-resumen-numero">1.2K</p>
+                        <p class="admin-resumen-sub admin-sub-verde">+12 esta semana</p>
+                    </div>
+                    <div class="admin-resumen-card">
+                        <p class="admin-resumen-label">Reportes pendientes</p>
+                        <p class="admin-resumen-numero admin-numero-amarillo">24</p>
+                        <p class="admin-resumen-sub">Requieren revisión</p>
+                    </div>
+                    <div class="admin-resumen-card">
+                        <p class="admin-resumen-label">Aprobados este mes</p>
+                        <p class="admin-resumen-numero admin-numero-verde">138</p>
+                        <p class="admin-resumen-sub">Fenómenos publicados</p>
+                    </div>
+                    <div class="admin-resumen-card">
+                        <p class="admin-resumen-label">Comentarios activos</p>
+                        <p class="admin-resumen-numero">3.4K</p>
+                        <p class="admin-resumen-sub">En toda la plataforma</p>
+                    </div>
+                </div>
+
+                <div class="admin-reportes-header">
+                    <h3 class="admin-reportes-titulo">⊕ Reportes pendientes</h3>
+                </div>
+
+                <div class="admin-filtros-tabla">
+                    <input type="text" placeholder="🔍 Buscar reporte..." class="admin-buscador input-cyber">
+                    <div class="admin-filtros-tipo">
+                        <button class="admin-filtro-btn active" data-filtro="todos">Todos</button>
+                        <button class="admin-filtro-btn" data-filtro="ovni">OVNI</button>
+                        <button class="admin-filtro-btn" data-filtro="embrujado">Embrujado</button>
+                    </div>
+                </div>
+
+                <div class="admin-tabla-wrapper">
+                    <table class="admin-tabla">
+                        <thead>
+                            <tr>
+                                <th>Lugar</th>
+                                <th>Tipo</th>
+                                <th>Usuario</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-reportes">
+                            <tr data-tipo="ovni">
+                                <td class="admin-td-lugar">Roswell, New Mexico</td>
+                                <td><span class="admin-tipo-badge badge-ovni">OVNI</span></td>
+                                <td class="admin-td-usuario">user_439</td>
+                                <td><span class="admin-estado-badge admin-estado-pendiente">Pendiente</span></td>
+                                <td class="admin-td-acciones">
+                                    <button class="btn-accion btn-accion-aprobar" title="Aprobar" onclick="aprobarFila(this)">✓</button>
+                                    <button class="btn-accion btn-accion-rechazar" title="Rechazar" onclick="rechazarFila(this)">✕</button>
+                                    <button class="btn-accion btn-accion-editar" title="Editar" onclick="editarFila(this)">✎</button>
+                                </td>
+                            </tr>
+                            <tr data-tipo="embrujado">
+                                <td class="admin-td-lugar">Winchester House, CA</td>
+                                <td><span class="admin-tipo-badge badge-embrujado">Embrujado</span></td>
+                                <td class="admin-td-usuario">user_112</td>
+                                <td><span class="admin-estado-badge admin-estado-pendiente">Pendiente</span></td>
+                                <td class="admin-td-acciones">
+                                    <button class="btn-accion btn-accion-aprobar" title="Aprobar" onclick="aprobarFila(this)">✓</button>
+                                    <button class="btn-accion btn-accion-rechazar" title="Rechazar" onclick="rechazarFila(this)">✕</button>
+                                    <button class="btn-accion btn-accion-editar" title="Editar" onclick="editarFila(this)">✎</button>
+                                </td>
+                            </tr>
+                            <tr data-tipo="ovni">
+                                <td class="admin-td-lugar">Area 51, Nevada</td>
+                                <td><span class="admin-tipo-badge badge-ovni">OVNI</span></td>
+                                <td class="admin-td-usuario">user_287</td>
+                                <td><span class="admin-estado-badge admin-estado-aprobado">Aprobado</span></td>
+                                <td class="admin-td-acciones">
+                                    <button class="btn-accion btn-accion-aprobar" title="Aprobar" onclick="aprobarFila(this)">✓</button>
+                                    <button class="btn-accion btn-accion-rechazar" title="Rechazar" onclick="rechazarFila(this)">✕</button>
+                                    <button class="btn-accion btn-accion-editar" title="Editar" onclick="editarFila(this)">✎</button>
+                                </td>
+                            </tr>
+                            <tr data-tipo="embrujado">
+                                <td class="admin-td-lugar">Stanley Hotel, Colorado</td>
+                                <td><span class="admin-tipo-badge badge-embrujado">Embrujado</span></td>
+                                <td class="admin-td-usuario">user_054</td>
+                                <td><span class="admin-estado-badge admin-estado-rechazado">Rechazado</span></td>
+                                <td class="admin-td-acciones">
+                                    <button class="btn-accion btn-accion-aprobar" title="Aprobar" onclick="aprobarFila(this)">✓</button>
+                                    <button class="btn-accion btn-accion-rechazar" title="Rechazar" onclick="rechazarFila(this)">✕</button>
+                                    <button class="btn-accion btn-accion-editar" title="Editar" onclick="editarFila(this)">✎</button>
+                                </td>
+                            </tr>
+                            <tr data-tipo="ovni">
+                                <td class="admin-td-lugar">Phoenix Lights, AZ</td>
+                                <td><span class="admin-tipo-badge badge-ovni">OVNI</span></td>
+                                <td class="admin-td-usuario">user_391</td>
+                                <td><span class="admin-estado-badge admin-estado-pendiente">Pendiente</span></td>
+                                <td class="admin-td-acciones">
+                                    <button class="btn-accion btn-accion-aprobar" title="Aprobar" onclick="aprobarFila(this)">✓</button>
+                                    <button class="btn-accion btn-accion-rechazar" title="Rechazar" onclick="rechazarFila(this)">✕</button>
+                                    <button class="btn-accion btn-accion-editar" title="Editar" onclick="editarFila(this)">✎</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PANEL: PENDIENTES -->
+            <div class="admin-panel-section" id="panel-pendientes">
+                <h2 class="admin-main-title">⏳ Pendientes de revisión</h2>
+                <p class="admin-panel-desc">Revisá y moderá los reportes que esperan aprobación.</p>
+                <div class="admin-tabla-wrapper">
+                    <table class="admin-tabla">
+                        <thead><tr><th>Lugar</th><th>Tipo</th><th>Usuario</th><th>Descripción</th><th>Acciones</th></tr></thead>
+                        <tbody>
+                            <tr><td>Avistamiento en Córdoba</td><td><span class="admin-tipo-badge badge-ovni">OVNI</span></td><td>rodrigo_psi</td><td class="admin-td-desc">Objeto luminoso circular visto a las 22:30...</td><td class="admin-td-acciones"><button class="btn-accion btn-accion-aprobar" onclick="aprobarFila(this)">✓</button><button class="btn-accion btn-accion-rechazar" onclick="rechazarFila(this)">✕</button><button class="btn-accion btn-accion-editar" onclick="editarFila(this)">✎</button></td></tr>
+                            <tr><td>Casa abandonada en Mendoza</td><td><span class="admin-tipo-badge badge-embrujado">Embrujado</span></td><td>mariela_g</td><td class="admin-td-desc">Puertas que se abren solas, sonidos inexplicables...</td><td class="admin-td-acciones"><button class="btn-accion btn-accion-aprobar" onclick="aprobarFila(this)">✓</button><button class="btn-accion btn-accion-rechazar" onclick="rechazarFila(this)">✕</button><button class="btn-accion btn-accion-editar" onclick="editarFila(this)">✎</button></td></tr>
+                            <tr><td>Luces sobre el Río de la Plata</td><td><span class="admin-tipo-badge badge-ovni">OVNI</span></td><td>lautaro_x</td><td class="admin-td-desc">Destellos azulados sobre el río a medianoche...</td><td class="admin-td-acciones"><button class="btn-accion btn-accion-aprobar" onclick="aprobarFila(this)">✓</button><button class="btn-accion btn-accion-rechazar" onclick="rechazarFila(this)">✕</button><button class="btn-accion btn-accion-editar" onclick="editarFila(this)">✎</button></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PANEL: USUARIOS -->
+            <div class="admin-panel-section" id="panel-usuarios">
+                <h2 class="admin-main-title">👤 Usuarios</h2>
+                <p class="admin-panel-desc">Gestioná las cuentas registradas en la plataforma.</p>
+                <div class="admin-tabla-wrapper">
+                    <table class="admin-tabla">
+                        <thead><tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Registrado</th><th>Acciones</th></tr></thead>
+                        <tbody>
+                            <tr><td>cazador_nocturno</td><td>caz@email.com</td><td><span class="admin-estado-badge admin-estado-aprobado">usuario</span></td><td>01/01/2026</td><td class="admin-td-acciones"><button class="btn-accion btn-accion-rechazar" onclick="eliminarFila(this)" title="Eliminar">🗑</button></td></tr>
+                            <tr><td>mariela_g</td><td>mariela@email.com</td><td><span class="admin-estado-badge admin-estado-aprobado">usuario</span></td><td>15/01/2026</td><td class="admin-td-acciones"><button class="btn-accion btn-accion-rechazar" onclick="eliminarFila(this)" title="Eliminar">🗑</button></td></tr>
+                            <tr><td>stephany_local</td><td>s@email.com</td><td><span class="admin-estado-badge" style="background:rgba(173,255,47,.12);color:#adff2f;">admin</span></td><td>07/06/2026</td><td class="admin-td-acciones"><span style="color:#434768;">—</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PANEL: COMENTARIOS -->
+            <div class="admin-panel-section" id="panel-comentarios">
+                <h2 class="admin-main-title">💬 Comentarios</h2>
+                <p class="admin-panel-desc">Moderá los comentarios de la comunidad.</p>
+                <div class="admin-tabla-wrapper">
+                    <table class="admin-tabla">
+                        <thead><tr><th>Usuario</th><th>Fenómeno</th><th>Comentario</th><th>Acciones</th></tr></thead>
+                        <tbody>
+                            <tr><td>cazador_nocturno</td><td>Roswell, NM</td><td class="admin-td-desc">"La energía del lugar es indescriptible..."</td><td class="admin-td-acciones"><button class="btn-accion btn-accion-rechazar" onclick="eliminarFila(this)" title="Eliminar">🗑</button></td></tr>
+                            <tr><td>testigo_frecuente</td><td>Stanley Hotel</td><td class="admin-td-desc">"Escuché pasos a las 3am claramente..."</td><td class="admin-td-acciones"><button class="btn-accion btn-accion-rechazar" onclick="eliminarFila(this)" title="Eliminar">🗑</button></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PANEL: OVNIs -->
+            <div class="admin-panel-section" id="panel-ovnis">
+                <h2 class="admin-main-title">🛸 OVNIs publicados</h2>
+                <p class="admin-panel-desc">Editá o eliminá avistamientos publicados.</p>
+                <div class="admin-tabla-wrapper">
+                    <table class="admin-tabla">
+                        <thead><tr><th>Lugar</th><th>Año</th><th>Actividad</th><th>Acciones</th></tr></thead>
+                        <tbody>
+                            <tr><td>Roswell, New Mexico</td><td>1947</td><td><span class="admin-estado-badge admin-estado-rechazado">Extrema</span></td><td class="admin-td-acciones"><button class="btn-accion btn-accion-editar" onclick="editarFila(this)">✎</button><button class="btn-accion btn-accion-rechazar" onclick="eliminarFila(this)">🗑</button></td></tr>
+                            <tr><td>Area 51, Nevada</td><td>2026</td><td><span class="admin-estado-badge admin-estado-rechazado">Extrema</span></td><td class="admin-td-acciones"><button class="btn-accion btn-accion-editar" onclick="editarFila(this)">✎</button><button class="btn-accion btn-accion-rechazar" onclick="eliminarFila(this)">🗑</button></td></tr>
+                            <tr><td>Phoenix Lights, AZ</td><td>1997</td><td><span class="admin-estado-badge admin-estado-pendiente">Moderada</span></td><td class="admin-td-acciones"><button class="btn-accion btn-accion-editar" onclick="editarFila(this)">✎</button><button class="btn-accion btn-accion-rechazar" onclick="eliminarFila(this)">🗑</button></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PANEL: EMBRUJADOS -->
+            <div class="admin-panel-section" id="panel-embrujados">
+                <h2 class="admin-main-title">🔒 Lugares embrujados publicados</h2>
+                <p class="admin-panel-desc">Editá o eliminá lugares embrujados publicados.</p>
+                <div class="admin-tabla-wrapper">
+                    <table class="admin-tabla">
+                        <thead><tr><th>Lugar</th><th>Año</th><th>Actividad</th><th>Acciones</th></tr></thead>
+                        <tbody>
+                            <tr><td>Winchester House, CA</td><td>1926</td><td><span class="admin-estado-badge admin-estado-pendiente">Alta</span></td><td class="admin-td-acciones"><button class="btn-accion btn-accion-editar" onclick="editarFila(this)">✎</button><button class="btn-accion btn-accion-rechazar" onclick="eliminarFila(this)">🗑</button></td></tr>
+                            <tr><td>Stanley Hotel, CO</td><td>1909</td><td><span class="admin-estado-badge admin-estado-pendiente">Alta</span></td><td class="admin-td-acciones"><button class="btn-accion btn-accion-editar" onclick="editarFila(this)">✎</button><button class="btn-accion btn-accion-rechazar" onclick="eliminarFila(this)">🗑</button></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL EDITAR -->
+    <dialog id="modalEditarAdmin" class="modal-confirmacion modal-editar">
+        <h3>✎ Editar registro</h3>
+        <div class="modal-editar-form">
+            <label>Nombre / Lugar</label>
+            <input type="text" id="editNombreAdmin" class="input-cyber" value="">
+            <label>Estado</label>
+            <select id="editEstadoAdmin" class="select-cyber">
+                <option value="pendiente">Pendiente</option>
+                <option value="aprobado">Aprobado</option>
+                <option value="rechazado">Rechazado</option>
+            </select>
+        </div>
+        <div class="modal-confirmacion-form">
+            <button type="button" class="btn-cancel-cyber" onclick="document.getElementById('modalEditarAdmin').close()">Cancelar</button>
+            <button type="button" class="btn-admin-aprobar" onclick="document.getElementById('modalEditarAdmin').close()">💾 Guardar</button>
+        </div>
+    </dialog>
+
+    <!-- MODAL CONFIRMAR ELIMINAR -->
+    <dialog id="modalEliminarAdmin" class="modal-confirmacion">
+        <h3>¿Eliminar este registro?</h3>
+        <p>Esta acción no se puede deshacer.</p>
+        <div class="modal-confirmacion-form">
+            <button type="button" class="btn-cancel-cyber" onclick="document.getElementById('modalEliminarAdmin').close()">Cancelar</button>
+            <button type="button" class="btn-eliminar-confirmar" id="btnConfirmarEliminarAdmin">Sí, eliminar</button>
+        </div>
+    </dialog>
+
+    <script src="{% static 'js/script.js' %}"></script>
+    <script>
+        // NAVEGACIÓN SIDEBAR
+        document.querySelectorAll('.admin-nav-link[data-panel]').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                var panel = link.getAttribute('data-panel');
+                document.querySelectorAll('.admin-nav-link').forEach(function(l) { l.classList.remove('active'); });
+                document.querySelectorAll('.admin-panel-section').forEach(function(s) { s.classList.remove('active'); });
+                link.classList.add('active');
+                var sec = document.getElementById('panel-' + panel);
+                if (sec) sec.classList.add('active');
+            });
+        });
+
+        // FILTROS TIPO en tabla principal
+        document.querySelectorAll('.admin-filtro-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.admin-filtro-btn').forEach(function(b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+                var filtro = btn.getAttribute('data-filtro');
+                document.querySelectorAll('#tabla-reportes tr').forEach(function(row) {
+                    if (filtro === 'todos' || row.getAttribute('data-tipo') === filtro) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // BUSCADOR
+        document.querySelector('.admin-buscador').addEventListener('input', function() {
+            var term = this.value.toLowerCase();
+            document.querySelectorAll('#tabla-reportes tr').forEach(function(row) {
+                row.style.display = row.textContent.toLowerCase().indexOf(term) !== -1 ? '' : 'none';
+            });
+        });
+
+        // APROBAR
+        function aprobarFila(btn) {
+            var td = btn.closest('tr').querySelector('td:nth-child(4)');
+            if (td) td.innerHTML = '<span class="admin-estado-badge admin-estado-aprobado">Aprobado</span>';
+        }
+
+        // RECHAZAR
+        function rechazarFila(btn) {
+            var td = btn.closest('tr').querySelector('td:nth-child(4)');
+            if (td) td.innerHTML = '<span class="admin-estado-badge admin-estado-rechazado">Rechazado</span>';
+        }
+
+        // EDITAR
+        function editarFila(btn) {
+            var lugar = btn.closest('tr').querySelector('td:first-child').textContent.trim();
+            document.getElementById('editNombreAdmin').value = lugar;
+            document.getElementById('modalEditarAdmin').showModal();
+        }
+
+        // ELIMINAR
+        var filaAEliminar = null;
+        function eliminarFila(btn) {
+            filaAEliminar = btn.closest('tr');
+            document.getElementById('modalEliminarAdmin').showModal();
+        }
+        document.getElementById('btnConfirmarEliminarAdmin').addEventListener('click', function() {
+            if (filaAEliminar) {
+                filaAEliminar.style.opacity = '0';
+                filaAEliminar.style.transition = 'opacity 0.3s';
+                setTimeout(function() { filaAEliminar.remove(); }, 300);
+                filaAEliminar = null;
+            }
+            document.getElementById('modalEliminarAdmin').close();
+        });
+    </script>
+</body>
+</html>

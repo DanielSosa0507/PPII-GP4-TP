@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anomaly Detected</title>
+    <link rel="icon" type="image/png" href="{% static 'img/Logo_final.png' %}">
     <script>
         (function () {
             var hora = new Date().getHours();
@@ -18,20 +19,17 @@
     <header class="header">
         <div class="container header-content">
             <div class="logo">
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <ellipse cx="16" cy="14" rx="13" ry="3.2" fill="#2E7D32"/>
-                    <ellipse cx="16" cy="11.5" rx="8" ry="4.5" fill="#4CAF50"/>
-                    <ellipse cx="16" cy="9.5" rx="4" ry="2.6" fill="#A5D6A7"/>
-                    <circle cx="8" cy="14" r="1.4" fill="#2E7D32"/>
-                    <circle cx="16" cy="15.2" r="1.4" fill="#2E7D32"/>
-                    <circle cx="24" cy="14" r="1.4" fill="#2E7D32"/>
-                </svg>
+                <img src="{% static 'img/Logo_final.png' %}" alt="Logo" class="nav-logo-img">
                 <span>ANOMALY DETECTED</span>
             </div>
             <nav class="nav">
                 <a href="{% url 'mapa' %}">Mapa</a>
+                {% if user.is_authenticated %}
                 <a href="{% url 'mapa' %}">Fenómenos</a>
-                <a href="{% url 'reportes' %}">Dashboard</a>
+                {% else %}
+                <a href="{% url 'registro' %}">Fenómenos</a>
+                {% endif %}
+                <a href="{% url 'reportes' %}">Reportes</a>
                 <a href="{% url 'favoritos' %}" class="active">Favoritos</a>
             </nav>
             <div class="header-actions">
@@ -43,63 +41,7 @@
     <section class="hero">
         <div class="hero-content">
             <div class="hero-image">
-                <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Particulas -->
-                    <circle cx="40" cy="60" r="2" fill="#4CAF50" opacity="0.6"/>
-                    <circle cx="260" cy="80" r="2" fill="#4CAF50" opacity="0.5"/>
-                    <circle cx="55" cy="220" r="2" fill="#4CAF50" opacity="0.5"/>
-                    <circle cx="250" cy="230" r="2" fill="#4CAF50" opacity="0.6"/>
-                    <circle cx="30" cy="150" r="1.5" fill="#4CAF50" opacity="0.4"/>
-                    <circle cx="270" cy="160" r="1.5" fill="#4CAF50" opacity="0.4"/>
-
-                    <!-- Anillos concentricos -->
-                    <circle cx="150" cy="170" r="120" stroke="#4CAF50" stroke-width="1.5" opacity="0.2"/>
-                    <circle cx="150" cy="170" r="95" stroke="#4CAF50" stroke-width="1.5" opacity="0.28"/>
-                    <circle cx="150" cy="170" r="70" stroke="#4CAF50" stroke-width="1.5" opacity="0.35"/>
-
-                    <!-- Haz de luz -->
-                    <path d="M 118 118 L 78 235 L 222 235 L 182 118 Z" fill="#A5D6A7" opacity="0.18"/>
-                    <path d="M 130 118 L 105 220 L 195 220 L 170 118 Z" fill="#4CAF50" opacity="0.12"/>
-
-                    <!-- Fantasma -->
-                    <path d="M 150 150
-                             C 133 150 119 164 119 182
-                             L 119 212
-                             L 127 204 L 135 212 L 143 204 L 150 212 L 157 204 L 165 212 L 173 204 L 181 212
-                             L 181 182
-                             C 181 164 167 150 150 150 Z"
-                          fill="#EFF7EE" opacity="0.95" stroke="#2E7D32" stroke-width="1" stroke-opacity="0.3"/>
-                    <ellipse cx="141" cy="176" rx="3.2" ry="4" fill="#2E7D32"/>
-                    <ellipse cx="160" cy="176" rx="3.2" ry="4" fill="#2E7D32"/>
-                    <path d="M 145 188 Q 150 193 156 188" stroke="#2E7D32" stroke-width="2" fill="none" stroke-linecap="round"/>
-
-                    <!-- Platillo volador -->
-                    <ellipse cx="150" cy="98" rx="88" ry="17" fill="#2E7D32"/>
-                    <ellipse cx="150" cy="98" rx="88" ry="17" fill="url(#metalGradient)" opacity="0.5"/>
-                    <ellipse cx="150" cy="89" rx="56" ry="29" fill="#4CAF50"/>
-                    <ellipse cx="150" cy="80" rx="29" ry="17" fill="#C8E6C9" opacity="0.9"/>
-                    <ellipse cx="150" cy="78" rx="20" ry="11" fill="#E8F5E9" opacity="0.7"/>
-
-                    <!-- Luces de la base -->
-                    <circle cx="110" cy="98" r="4.5" fill="#A5D6A7"/>
-                    <circle cx="130" cy="103" r="4.5" fill="#A5D6A7"/>
-                    <circle cx="150" cy="105" r="4.5" fill="#A5D6A7"/>
-                    <circle cx="170" cy="103" r="4.5" fill="#A5D6A7"/>
-                    <circle cx="190" cy="98" r="4.5" fill="#A5D6A7"/>
-
-                    <!-- Cruz de mira (decorativa) -->
-                    <line x1="150" y1="30" x2="150" y2="50" stroke="#4CAF50" stroke-width="1.5" opacity="0.4"/>
-                    <line x1="150" y1="290" x2="150" y2="270" stroke="#4CAF50" stroke-width="1.5" opacity="0.4"/>
-                    <line x1="20" y1="170" x2="40" y2="170" stroke="#4CAF50" stroke-width="1.5" opacity="0.4"/>
-                    <line x1="280" y1="170" x2="260" y2="170" stroke="#4CAF50" stroke-width="1.5" opacity="0.4"/>
-
-                    <defs>
-                        <linearGradient id="metalGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.5"/>
-                            <stop offset="100%" stop-color="#000000" stop-opacity="0.2"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
+            <img src="{% static 'img/Logo_final.png' %}" alt="Anomaly Detected Logo" class="hero-logo-img">
             </div>
             <h1>ANOMALY DETECTED</h1>
             <p class="hero-subtitle">Explorá y reportá fenómenos paranormales alrededor del mundo</p>

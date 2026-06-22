@@ -15,6 +15,9 @@
         <a href="{% url 'reportes' %}" class="{% if active == 'reportes' %}active{% endif %}">Reportes</a>
         <a href="{% url 'comunidad' %}" class="{% if active == 'comunidad' %}active{% endif %}">Comunidad</a>
         <a href="{% url 'favoritos' %}" class="{% if active == 'favoritos' %}active{% endif %}">Favoritos</a>
+        {% if user.is_authenticated and user.rol == 'admin' %}
+            <a href="{% url 'admin_panel' %}" class="nav-link-admin {% if active == 'admin_panel' %}active{% endif %}">⚙ Admin</a>
+        {% endif %}
     </nav>
     <div class="nav-user">
         {% if user.is_authenticated %}
