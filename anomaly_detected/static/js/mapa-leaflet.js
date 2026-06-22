@@ -76,8 +76,16 @@
 
     /* ------------------------------------------------------------
        MARCADORES + POPUPS
+       Se agrupan con Leaflet.markercluster: con miles de fenómenos
+       cargados, dibujar cada uno suelto en el mapa lo deja lento y
+       saturado de puntos superpuestos. Agrupados, se ven números
+       cuando hay varios cerca y solo se abren al hacer zoom.
        ------------------------------------------------------------ */
     var marcadores = {};
+    var grupoMarcadores = (typeof L.markerClusterGroup === 'function')
+        ? L.markerClusterGroup({ chunkedLoading: true, maxClusterRadius: 60 })
+        : L.layerGroup(); // si el plugin no cargó, al menos no rompe el resto del mapa
+    grupoMarcadores.addTo(mapa);
 
     function popupFavoritoHtml(f) {
         var esFavorito = !!FAVORITOS[f.id];
@@ -98,7 +106,7 @@
     function construirMarcadores() {
         FENOMENOS.forEach(function (f) {
             var icono = f.tipo === 'embrujado' ? iconoMorado : iconoVerde;
-            var marker = L.marker([f.lat, f.lng], { icon: icono }).addTo(mapa);
+            var marker = L.marker([f.lat, f.lng], { icon: icono });
 
             var tipoLabel = f.tipo === 'embrujado' ? 'Lugar embrujado' : 'Avistamiento OVNI';
             var anio = f.fecha_ocurrencia ? f.fecha_ocurrencia.slice(0, 4) : 's/f';
@@ -114,6 +122,20 @@
             marker.bindPopup(contenidoPopup, { closeButton: false, className: 'popup-leaflet-wrapper' });
             marcadores[f.id] = marker;
         });
+
+        agregarMarcadoresAlGrupo(Object.values(marcadores));
+    }
+
+    // addLayers (en plural) es del plugin de clustering, para agregar
+    // muchos de una sola vez sin recalcular los clusters en cada uno.
+    // Si el plugin no cargó, el L.layerGroup() de respaldo no tiene ese
+    // método, así que en ese caso se agregan de a uno.
+    function agregarMarcadoresAlGrupo(lista) {
+        if (typeof grupoMarcadores.addLayers === 'function') {
+            grupoMarcadores.addLayers(lista);
+        } else {
+            lista.forEach(function (m) { grupoMarcadores.addLayer(m); });
+        }
     }
 
     // Delegación de eventos: como los popups y el modal de ficha se
@@ -306,11 +328,11 @@
                 mapa.removeLayer(c);
             }
         });
-        Object.keys(marcadores).forEach(function (id) {
-            var marker = marcadores[id];
-            var el = marker.getElement();
-            if (el) el.style.display = activar ? 'none' : '';
-        });
+        if (activar) {
+            mapa.removeLayer(grupoMarcadores);
+        } else {
+            grupoMarcadores.addTo(mapa);
+        }
     }
 
     var botonCalor = document.getElementById('toggleMapaCalor');
@@ -324,26 +346,152 @@
     }
 
     /* ------------------------------------------------------------
-       FILTROS POR TIPO (OVNI / Embrujados) — muestran u ocultan
-       los marcadores correspondientes.
+       BASES MILITARES POR ESTADO — el dataset de bases no trae
+       latitud/longitud por base individual, así que en vez de pines
+       sueltos se dibuja una burbuja en el centroide de cada estado
+       con la cantidad de bases ahí. Las coordenadas de los centroides
+       son fijas (geografía conocida), no vienen de la base de datos.
        ------------------------------------------------------------ */
-    document.querySelectorAll('.btn-filtro-cyber[data-filtro]').forEach(function (btn) {
+    var CENTROIDES_ESTADOS = {
+        'Alabama': [32.8067, -86.7911], 'Alaska': [61.3707, -152.4044],
+        'Arizona': [33.7298, -111.4312], 'Arkansas': [34.9697, -92.3731],
+        'California': [36.1162, -119.6816], 'Colorado': [39.0598, -105.3111],
+        'Connecticut': [41.5978, -72.7554], 'Delaware': [39.3185, -75.5071],
+        'District of Columbia': [38.8974, -77.0268], 'Florida': [27.7663, -81.6868],
+        'Georgia': [33.0406, -83.6431], 'Hawaii': [21.0943, -157.4983],
+        'Idaho': [44.2405, -114.4788], 'Illinois': [40.3495, -88.9861],
+        'Indiana': [39.8494, -86.2583], 'Iowa': [42.0115, -93.2105],
+        'Kansas': [38.5266, -96.7265], 'Kentucky': [37.6681, -84.6701],
+        'Louisiana': [31.1695, -91.8678], 'Maine': [44.6939, -69.3819],
+        'Maryland': [39.0639, -76.8021], 'Massachusetts': [42.2302, -71.5301],
+        'Michigan': [43.3266, -84.5361], 'Minnesota': [45.6945, -93.9002],
+        'Mississippi': [32.7416, -89.6787], 'Missouri': [38.4561, -92.2884],
+        'Montana': [46.9219, -110.4544], 'Nebraska': [41.1254, -98.2681],
+        'Nevada': [38.3135, -117.0554], 'New Hampshire': [43.4525, -71.5639],
+        'New Jersey': [40.2989, -74.5210], 'New Mexico': [34.8405, -106.2485],
+        'New York': [42.1657, -74.9481], 'North Carolina': [35.6301, -79.8064],
+        'North Dakota': [47.5289, -99.7840], 'Ohio': [40.3888, -82.7649],
+        'Oklahoma': [35.5653, -96.9289], 'Oregon': [44.5720, -122.0709],
+        'Pennsylvania': [40.5908, -77.2098], 'Rhode Island': [41.6809, -71.5118],
+        'South Carolina': [33.8569, -80.9450], 'South Dakota': [44.2998, -99.4388],
+        'Tennessee': [35.7478, -86.6923], 'Texas': [31.0545, -97.5635],
+        'Utah': [40.1500, -111.8624], 'Vermont': [44.0459, -72.7107],
+        'Virginia': [37.7693, -78.1700], 'Washington': [47.4009, -121.4905],
+        'West Virginia': [38.4912, -80.9546], 'Wisconsin': [44.2685, -89.6165],
+        'Wyoming': [42.7560, -107.3025], 'Guam': [13.4443, 144.7937],
+        'Puerto Rico': [18.2208, -66.5901],
+    };
+
+    var grupoBasesMilitares = L.layerGroup();
+    var basesCargadas = false;
+
+    // Mismos 3 colores que ya usa el mapa de calor (INTENSIDAD_COLOR), para
+    // que "rojo" signifique lo mismo en todo el mapa: alta concentración.
+    function colorPorConcentracion(cantidad) {
+        if (cantidad >= 30) return '#ea2b4b'; // alta
+        if (cantidad >= 10) return '#f7a01b'; // moderada
+        return '#2196f3'; // baja
+    }
+
+    function cargarBasesMilitares() {
+        if (basesCargadas) return Promise.resolve();
+        return fetchPropio('/api/fenomenos/bases-por-estado/').then(function (datos) {
+            datos.forEach(function (fila) {
+                var centro = CENTROIDES_ESTADOS[fila.estado];
+                if (!centro) return; // estado sin centroide conocido (datos sucios, ej. "Naval Magazine")
+
+                var radio = 14 + Math.sqrt(fila.cantidad) * 4;
+                var color = colorPorConcentracion(fila.cantidad);
+                var icono = L.divIcon({
+                    className: 'burbuja-base-militar-wrapper',
+                    html: '<span class="burbuja-base-militar" style="width:' + radio + 'px;height:' + radio + 'px;background-color:' + color + 'cc;border-color:' + color + ';">' + fila.cantidad + '</span>',
+                    iconSize: [radio, radio],
+                    iconAnchor: [radio / 2, radio / 2],
+                });
+                L.marker(centro, { icon: icono })
+                    .bindTooltip(fila.estado + ': ' + fila.cantidad + ' bases militares')
+                    .addTo(grupoBasesMilitares);
+            });
+            basesCargadas = true;
+        });
+    }
+
+    var botonBasesMilitares = document.getElementById('toggleBasesMilitares');
+    if (botonBasesMilitares) {
+        botonBasesMilitares.addEventListener('click', function () {
+            var activo = botonBasesMilitares.classList.toggle('active');
+            if (activo) {
+                cargarBasesMilitares().then(function () { grupoBasesMilitares.addTo(mapa); });
+            } else {
+                mapa.removeLayer(grupoBasesMilitares);
+            }
+        });
+    }
+
+    /* ------------------------------------------------------------
+       FILTROS COMBINADOS (tipo OVNI/Embrujados + estado) — se
+       aplican juntos: un fenómeno se muestra solo si su tipo está
+       activo Y (no hay estado elegido O coincide con el elegido).
+       ------------------------------------------------------------ */
+    var botonesTipo = document.querySelectorAll('.btn-filtro-cyber[data-filtro]');
+    var selectEstado = document.getElementById('selectEstado');
+
+    function tiposActivos() {
+        var activos = [];
+        botonesTipo.forEach(function (btn) {
+            var filtro = btn.getAttribute('data-filtro');
+            if ((filtro === 'ovni' || filtro === 'embrujado') && btn.classList.contains('active')) {
+                activos.push(filtro);
+            }
+        });
+        return activos;
+    }
+
+    function aplicarFiltros() {
+        var tipos = tiposActivos();
+        var estado = selectEstado ? selectEstado.value : '';
+
+        var visibles = FENOMENOS.filter(function (f) {
+            var pasaTipo = tipos.indexOf(f.tipo) !== -1;
+            var pasaEstado = !estado || f.estado === estado;
+            return pasaTipo && pasaEstado;
+        }).map(function (f) { return marcadores[f.id]; }).filter(Boolean);
+
+        if (typeof grupoMarcadores.clearLayers === 'function') {
+            grupoMarcadores.clearLayers();
+        }
+        agregarMarcadoresAlGrupo(visibles);
+    }
+
+    botonesTipo.forEach(function (btn) {
         var filtro = btn.getAttribute('data-filtro');
-        if (filtro !== 'ovni' && filtro !== 'embrujado') return; // "militar" no tiene datos de ejemplo todavía
+        if (filtro !== 'ovni' && filtro !== 'embrujado') return; // "militar" no tiene pines (sin coordenadas en el dataset)
 
         btn.addEventListener('click', function () {
-            var activo = btn.classList.toggle('active');
-            FENOMENOS.filter(function (f) { return f.tipo === filtro; }).forEach(function (f) {
-                var marker = marcadores[f.id];
-                if (!marker) return;
-                if (activo) {
-                    mapa.addLayer(marker);
-                } else {
-                    mapa.removeLayer(marker);
-                }
-            });
+            btn.classList.toggle('active');
+            aplicarFiltros();
         });
     });
+
+    if (selectEstado) {
+        selectEstado.addEventListener('change', aplicarFiltros);
+    }
+
+    // Llena el <select> de estados con los valores reales que hay en los
+    // datos (antes tenía nombres de estado hardcodeados que ni siquiera
+    // coincidían con el formato que se guarda, ej. "New Mexico" vs "NM").
+    function poblarSelectEstado() {
+        if (!selectEstado) return;
+        var estados = Array.from(new Set(
+            FENOMENOS.map(function (f) { return f.estado; }).filter(Boolean)
+        )).sort();
+        estados.forEach(function (estado) {
+            var opcion = document.createElement('option');
+            opcion.value = estado;
+            opcion.textContent = estado;
+            selectEstado.appendChild(opcion);
+        });
+    }
 
     /* ------------------------------------------------------------
        CONTROLES DE ZOOM PROPIOS (+ / − / 🎯 recentrar)
@@ -366,7 +514,7 @@
             var termino = buscador.value.trim().toLowerCase();
             if (!termino) return;
             var encontrado = FENOMENOS.find(function (f) {
-                return f.nombre.toLowerCase().indexOf(termino) !== -1;
+                return (f.titulo + ' ' + (f.estado || '')).toLowerCase().indexOf(termino) !== -1;
             });
             if (encontrado) {
                 mapa.setView([encontrado.lat, encontrado.lng], 7);
@@ -387,23 +535,38 @@
        línea (polyline) conectando los puntos de esa ruta en orden,
        y centra el mapa para que se vea completa.
        ------------------------------------------------------------ */
+    // Las 3 rutas usan coordenadas propias (puntosCustom) de lugares
+    // reales conocidos, en vez de buscar por id dentro de FENOMENOS:
+    // antes "ovni"/"embrujado" buscaban f.id === 'roswell' (texto), pero
+    // los fenómenos que vienen de la API tienen id numérico — esa
+    // búsqueda nunca encontraba nada. Con datos reales importados podría
+    // buscarse por ciudad/nombre, pero coordenadas fijas son más
+    // confiables (no dependen de qué haya o no en la base en cada momento).
     var RUTAS = {
         ovni: {
+            titulo: 'Ruta OVNI',
+            descripcion: 'Un recorrido por 3 sitios clásicos de avistamientos OVNI.',
             color: '#adff2f',
-            // Sigue el orden este→oeste para que la línea no quede
-            // cruzada: Roswell (NM) → Phoenix (AZ) → Area 51 (NV).
-            puntos: ['roswell', 'phoenix', 'area51'],
+            // Este→oeste para que la línea no quede cruzada.
+            puntosCustom: [
+                { nombre: 'Roswell, NM', lat: 33.3943, lng: -104.5230 },
+                { nombre: 'Phoenix, AZ', lat: 33.4484, lng: -112.0740 },
+                { nombre: 'Area 51, NV', lat: 37.2431, lng: -115.7930 },
+            ],
         },
         embrujado: {
+            titulo: 'Ruta Embrujados',
+            descripcion: 'Dos de los lugares embrujados más conocidos de EE.UU.',
             color: '#9d8df1',
-            puntos: ['stanley', 'winchester'],
+            puntosCustom: [
+                { nombre: 'Stanley Hotel, CO', lat: 40.4019, lng: -105.5217 },
+                { nombre: 'Winchester Mystery House, CA', lat: 37.3184, lng: -121.9511 },
+            ],
         },
         militar: {
+            titulo: 'Ruta Militar',
+            descripcion: 'Bases militares asociadas a teorías sobre actividad OVNI.',
             color: '#ea2b4b',
-            // No hay pines de ejemplo de bases militares todavía, así
-            // que esta ruta usa coordenadas propias (Area 51 y dos
-            // bases reales conocidas de EE.UU.) solo para que la línea
-            // tenga sentido visual hasta que haya datos reales.
             puntosCustom: [
                 { nombre: 'Area 51, NV', lat: 37.2431, lng: -115.7930 },
                 { nombre: 'Edwards AFB, CA', lat: 34.9054, lng: -117.8836 },
@@ -414,19 +577,26 @@
 
     var lineaRutaActual = null;
     var tarjetaRutaActiva = null;
+    var marcadoresRutaActual = [];
 
     function coordenadasDeRuta(claveRuta) {
         var ruta = RUTAS[claveRuta];
         if (!ruta) return [];
+        return ruta.puntosCustom.map(function (p) { return [p.lat, p.lng]; });
+    }
 
-        if (ruta.puntosCustom) {
-            return ruta.puntosCustom.map(function (p) { return [p.lat, p.lng]; });
-        }
-
-        return ruta.puntos
-            .map(function (id) { return FENOMENOS.find(function (f) { return f.id === id; }); })
-            .filter(Boolean)
-            .map(function (f) { return [f.lat, f.lng]; });
+    // Marcador numerado (1, 2, 3...) con el nombre del lugar siempre visible
+    // (tooltip permanente), para que se entienda "desde dónde hasta dónde"
+    // va la ruta sin tener que adivinar mirando solo la línea.
+    function crearMarcadorParada(punto, numero, color) {
+        var icono = L.divIcon({
+            className: 'parada-ruta-wrapper',
+            html: '<span class="parada-ruta-numero" style="background:' + color + '">' + numero + '</span>',
+            iconSize: [22, 22],
+            iconAnchor: [11, 11],
+        });
+        return L.marker([punto.lat, punto.lng], { icon: icono })
+            .bindTooltip(punto.nombre, { permanent: true, direction: 'top', className: 'tooltip-parada-ruta' });
     }
 
     function limpiarRutaDibujada() {
@@ -434,6 +604,8 @@
             mapa.removeLayer(lineaRutaActual);
             lineaRutaActual = null;
         }
+        marcadoresRutaActual.forEach(function (m) { mapa.removeLayer(m); });
+        marcadoresRutaActual = [];
         if (tarjetaRutaActiva) {
             tarjetaRutaActiva.classList.remove('recorrido-activo');
             tarjetaRutaActiva = null;
@@ -455,6 +627,10 @@
             if (coords.length < 2) return;
 
             var ruta = RUTAS[clave];
+            var listaParadas = ruta.puntosCustom.map(function (p) {
+                return '<li>' + p.nombre + '</li>';
+            }).join('');
+
             lineaRutaActual = L.polyline(coords, {
                 color: ruta.color,
                 weight: 3,
@@ -462,6 +638,19 @@
                 dashArray: '8 6',
                 className: 'linea-recorrido-leaflet',
             }).addTo(mapa);
+
+            lineaRutaActual.bindPopup(
+                '<div class="popup-recorrido-cyber">' +
+                '<h4>' + ruta.titulo + '</h4>' +
+                '<p>' + ruta.descripcion + '</p>' +
+                '<ol class="popup-recorrido-paradas">' + listaParadas + '</ol>' +
+                '</div>',
+                { className: 'popup-leaflet-wrapper' }
+            ).openPopup();
+
+            marcadoresRutaActual = ruta.puntosCustom.map(function (punto, i) {
+                return crearMarcadorParada(punto, i + 1, ruta.color).addTo(mapa);
+            });
 
             tarjeta.classList.add('recorrido-activo');
             tarjetaRutaActiva = tarjeta;
@@ -497,6 +686,7 @@
 
         construirMarcadores();
         construirCapaCalor();
+        poblarSelectEstado();
         setTimeout(abrirPrimerPopup, 600);
     });
 })();

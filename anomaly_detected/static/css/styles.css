@@ -137,12 +137,24 @@ body {
     margin-bottom: 30px;
 }
 
-.hero-image svg {
-    width: 300px;
-    height: auto;
+.hero-image svg,
+.hero-image img {
+    width: 220px;
+    height: 220px;
     max-width: 100%;
     margin: 0 auto;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(173, 255, 47, 0.45);
+    box-shadow: 0 0 30px rgba(173, 255, 47, 0.3);
+    background-color: var(--white);
+}
+.hero-image svg {
     display: block;
+}
+html.light-theme .hero-image img {
+    border-color: rgba(46, 125, 50, 0.35);
+    box-shadow: 0 0 30px rgba(46, 125, 50, 0.2);
 }
 
 .hero h1 {
@@ -401,6 +413,23 @@ body {
     align-items: center;
     gap: 8px;
 }
+.nav-logo .logo-icon {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    border-radius: 50%;
+}
+/* Mismo toggle de logo dia/noche, reusado en el navbar interno (.nav-logo)
+   y en el header de la portada (.logo). */
+.logo-icon-dia {
+    display: none;
+}
+html.light-theme .logo-icon-noche {
+    display: none;
+}
+html.light-theme .logo-icon-dia {
+    display: block;
+}
 .nav-links {
     display: flex;
     gap: 25px;
@@ -424,6 +453,54 @@ body {
 .nav-user {
     display: flex;
     align-items: center;
+    gap: 14px;
+}
+
+/* Switch de tema claro/oscuro: estructura compartida entre el navbar
+   interno (.nav-user) y el header de la portada (.header-actions); los
+   colores de cada uno se definen por separado mas abajo. */
+.theme-toggle-btn {
+    width: 40px;
+    height: 22px;
+    border-radius: 999px;
+    border: 1px solid;
+    position: relative;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+}
+.theme-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    transition: left 0.2s ease;
+}
+html.light-theme .theme-toggle-thumb {
+    left: 20px;
+}
+.nav-user .theme-toggle-btn {
+    background-color: #0e1022;
+    border-color: #1c2042;
+}
+.nav-user .theme-toggle-thumb {
+    background-color: #adff2f;
+}
+html.light-theme .nav-user .theme-toggle-btn {
+    background-color: #FFFFFF;
+    border-color: #DDDDDD;
+}
+html.light-theme .nav-user .theme-toggle-thumb {
+    background-color: var(--dark-green);
+}
+.header-actions .theme-toggle-btn {
+    background-color: var(--gray-light);
+    border-color: var(--border-color);
+}
+.header-actions .theme-toggle-thumb {
+    background-color: var(--primary-green);
 }
 .user-avatar {
     width: 32px;
@@ -443,6 +520,24 @@ body {
 .user-avatar:hover {
     border-color: #adff2f;
     box-shadow: 0 0 8px rgba(173, 255, 47, 0.3);
+}
+.nav-username {
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.nav-username:hover {
+    color: #adff2f;
+}
+@media (max-width: 768px) {
+    .nav-username {
+        display: none;
+    }
 }
 
 
@@ -497,6 +592,21 @@ body {
 .chart-box { background-color: #1a1d2e; min-height: 220px; border-radius: 8px; border: 1px solid #2a2e45; padding: 20px; }
 .chart-title { font-size: 0.95rem; color: #ffffff; margin-bottom: 16px; font-weight: 600; }
 .chart-footnote { font-size: 0.7rem; color: #555b7c; margin-top: 14px; }
+
+/* El dashboard de Tableau Public trae un ancho fijo (1620px) calculado
+   por su propio script — en pantallas más chicas que eso, dejamos que
+   se pueda desplazar horizontalmente en vez de romper el resto del layout. */
+.tableau-dashboard-box {
+    margin-top: 20px;
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #2a2e45;
+    background-color: #1a1d2e;
+}
+html.light-theme .tableau-dashboard-box {
+    background-color: #FFFFFF;
+    border-color: #DDDDDD;
+}
 
 /* Gráfico de barras simulado */
 .bar-chart {
@@ -929,6 +1039,40 @@ body {
     margin-top: auto;
 }
 
+.mis-fenomenos-acciones {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.mis-fenomenos-form-eliminar {
+    display: inline;
+}
+
+.panel-admin-bloque {
+    margin-top: 32px;
+}
+
+.panel-admin-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 0.85rem;
+}
+
+.panel-admin-tabla th {
+    text-align: left;
+    padding: 8px 10px;
+    color: var(--texto-apagado);
+    border-bottom: 1px solid #22254b;
+    font-size: 0.75rem;
+}
+
+.panel-admin-tabla td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #1a1c38;
+}
+
 .status {
     font-size: 0.75rem;
     font-weight: bold;
@@ -1321,6 +1465,29 @@ body {
 .dot.verde { background-color: #adff2f; box-shadow: 0 0 6px #adff2f; }
 .dot.morado { background-color: #9d8df1; box-shadow: 0 0 6px #9d8df1; }
 .dot.rojo { background-color: #ea2b4b; box-shadow: 0 0 6px #ea2b4b; }
+.dot.azul { background-color: #2196f3; box-shadow: 0 0 6px #2196f3; }
+.dot.naranja { background-color: #f7a01b; box-shadow: 0 0 6px #f7a01b; }
+
+/* Referencias flotando sobre el mapa (antes estaban al final de la
+   sidebar, había que scrollear para verlas; ahora siempre visibles). */
+.referencias-mapa-float {
+    position: absolute;
+    bottom: 30px;
+    left: 40px;
+    z-index: 1000;
+    background-color: rgba(11, 12, 22, 0.85);
+    border: 1px solid #1a1c3a;
+    border-radius: 10px;
+    padding: 14px 18px;
+    max-width: 230px;
+}
+.referencias-mapa-float .filtro-titulo {
+    margin-bottom: 10px;
+}
+html.light-theme .referencias-mapa-float {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-color: #DDDDDD;
+}
 
 /* ZONA DERECHA: VISOR DEL MAPA */
 .zona-mapa-interactivo {
@@ -1336,7 +1503,7 @@ body {
     position: absolute;
     top: 25px;
     left: 40px;
-    z-index: 10;
+    z-index: 1000;
     background-color: rgba(11, 12, 22, 0.85);
     border: 1px solid #1a1c3a;
     border-radius: 30px;
@@ -1358,11 +1525,19 @@ body {
 }
 .search-icon { color: #adff2f; }
 
-/* Contenedor del mapa real (Leaflet) */
+/* Contenedor del mapa real (Leaflet). El z-index acá es clave: sin él,
+   Leaflet pone position:relative pero z-index:auto en este div, lo cual
+   NO crea un "contexto de apilamiento" propio — entonces sus capas
+   internas (tiles, marcadores, popups, que usan z-index hasta 700) se
+   comparan directo contra los elementos flotantes del mapa (buscador,
+   referencias, controles de zoom) en vez de quedar contenidas adentro,
+   y terminan tapándolos al hacer zoom/interactuar. */
 #map-leaflet {
     width: 100%;
     height: 100%;
     background-color: #0b0d1e;
+    position: relative;
+    z-index: 1;
 }
 
 /* Pines personalizados dentro de los divIcon de Leaflet */
@@ -1430,7 +1605,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    z-index: 10;
+    z-index: 1000;
 }
 .btn-control {
     width: 36px;
@@ -1485,19 +1660,26 @@ html:not(.light-theme) .login-left {
 }
 
 .login-icon-circle {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    border: 2px solid #adff2f;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 28px;
-    box-shadow: 0 0 24px rgba(173, 255, 47, 0.25);
+    margin: 0 auto 20px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #05060f;
+    border: 3px solid rgba(173, 255, 47, 0.45);
+    box-shadow: 0 0 30px rgba(173, 255, 47, 0.3);
 }
 
 .login-icon {
     font-size: 2.2rem;
+}
+.login-icon-circle img.login-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .login-brand {
@@ -1614,6 +1796,20 @@ html:not(.light-theme) .login-left {
 
 .login-input-wrapper input::placeholder {
     color: #3e425f;
+}
+
+.login-toggle-password {
+    background: transparent;
+    border: none;
+    color: #434768;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0;
+    margin-left: 8px;
+}
+
+.login-toggle-password:hover {
+    color: #adff2f;
 }
 
 .login-forgot {
@@ -1740,6 +1936,12 @@ html.light-theme .nav-links a:hover,
 html.light-theme .nav-links a.active {
     color: var(--dark-green);
     border-bottom-color: var(--dark-green);
+}
+html.light-theme .nav-username {
+    color: #222222;
+}
+html.light-theme .nav-username:hover {
+    color: var(--dark-green);
 }
 html.light-theme .nav-logo {
     color: var(--dark-green);
@@ -1923,6 +2125,11 @@ html.light-theme .info-box-cyber {
 }
 
 /* Login */
+html.light-theme .login-icon-circle {
+    background-color: #FFFFFF;
+    border-color: rgba(46, 125, 50, 0.35);
+    box-shadow: 0 0 30px rgba(46, 125, 50, 0.2);
+}
 html.light-theme .login-left {
     background-color: #FFFFFF;
     border-right-color: #DDDDDD;
@@ -2852,6 +3059,80 @@ html.light-theme .btn-ver-detalles {
     color: #5a5f80 !important;
     font-size: 0.65rem !important;
 }
+
+/* Burbuja por estado para "Bases militares" (sin coordenadas individuales
+   en el dataset, se agrupa por estado en su centroide geográfico). */
+.burbuja-base-militar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(234, 43, 75, 0.75);
+    border: 2px solid #ea2b4b;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+/* Marcadores numerados de las paradas de un Recorrido Temático */
+.parada-ruta-numero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    color: #06210a;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border: 2px solid #0b0c16;
+}
+.tooltip-parada-ruta {
+    background-color: #0b0c16 !important;
+    border: 1px solid #1c1e3a !important;
+    color: #ffffff !important;
+    font-size: 0.7rem !important;
+    padding: 3px 8px !important;
+}
+.tooltip-parada-ruta::before {
+    border-top-color: #1c1e3a !important;
+}
+
+/* Popup que se abre al activar un Recorrido Temático, con título,
+   descripción, y la lista ordenada de paradas. */
+.popup-recorrido-cyber {
+    background-color: #0b0c16;
+    border: 1px solid #1c1e3a;
+    border-radius: 10px;
+    padding: 15px;
+    width: 220px;
+}
+.popup-recorrido-cyber h4 {
+    margin: 0 0 6px 0;
+    color: #ffffff;
+    font-size: 0.95rem;
+}
+.popup-recorrido-cyber p {
+    margin: 0 0 10px 0;
+    color: #8b91b8;
+    font-size: 0.75rem;
+}
+.popup-recorrido-paradas {
+    margin: 0;
+    padding-left: 18px;
+    color: #c7cae0;
+    font-size: 0.78rem;
+}
+.popup-recorrido-paradas li {
+    margin-bottom: 3px;
+}
+html.light-theme .popup-recorrido-cyber {
+    background-color: #FFFFFF;
+    border-color: #DDDDDD;
+}
+html.light-theme .popup-recorrido-cyber h4 {
+    color: #222222;
+}
 .leaflet-control-attribution a {
     color: #7e84a3 !important;
 }
@@ -2871,6 +3152,25 @@ html.light-theme .leaflet-control-attribution {
     font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
     background-color: #0b0d1e;
 }
+
+/* Mini-mapa de selección de ubicación en "Reportar nuevo fenómeno" */
+.mini-mapa-reporte {
+    width: 100%;
+    height: 220px;
+    border-radius: 8px;
+    border: 1px solid #22254b;
+    margin-top: 8px;
+}
+
+.upload-input-real {
+    display: none;
+}
+
+/* Badges de estado de moderación (Mis Fenómenos / Reportar) */
+.badge-estado-pendiente { background-color: rgba(255, 193, 7, 0.15); color: #ffc107; }
+.badge-estado-aprobado { background-color: rgba(43, 234, 75, 0.15); color: var(--verde-exito); }
+.badge-estado-rechazado { background-color: rgba(234, 43, 75, 0.15); color: var(--rojo-alerta); }
+
 html.light-theme .leaflet-container {
     background-color: #EAEAEA;
 }

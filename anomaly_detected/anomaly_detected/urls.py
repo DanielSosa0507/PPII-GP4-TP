@@ -17,17 +17,17 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LogoutView
 from . import views
 from usuarios.views import perfil_view, editar_perfil_view, registro_view, eliminar_cuenta_view
- 
+
 urlpatterns = [
     # PRINCIPAL
     path('', views.index, name='index'),
- 
+
     # ADMINISTRADOR Y AUTENTICACIÓN
     path('admin/', admin.site.urls),
-    path('login/', LoginView.as_view(template_name='login.html'), name='login'),
+    path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(next_page='index'), name='logout'),
     path('registro/', registro_view, name='registro'),
     path('mapa/', views.mapa_view, name='mapa'),
@@ -45,7 +45,20 @@ urlpatterns = [
     path('comunidad/', views.comunidad, name='comunidad'),
     path('favoritos/', views.favoritos, name='favoritos'),
     path('reporte/', views.reporte_formulario, name='ReportForm'),
- 
+    path('reporte/<int:fenomeno_id>/editar/', views.reporte_formulario, name='editar_fenomeno'),
+
+    # MIS FENÓMENOS (ABM del usuario sobre lo que él mismo reportó)
+    path('mis-fenomenos/', views.mis_fenomenos_view, name='mis_fenomenos'),
+    path('mis-fenomenos/<int:fenomeno_id>/eliminar/', views.eliminar_fenomeno_view, name='eliminar_fenomeno'),
+
+    # PANEL ADMIN (moderación de fenómenos/comentarios, gestión de usuarios)
+    path('panel-admin/', views.panel_admin_view, name='panel_admin'),
+    path('panel-admin/fenomeno/<int:fenomeno_id>/aprobar/', views.aprobar_fenomeno_view, name='aprobar_fenomeno'),
+    path('panel-admin/fenomeno/<int:fenomeno_id>/rechazar/', views.rechazar_fenomeno_view, name='rechazar_fenomeno'),
+    path('panel-admin/comentario/<int:comentario_id>/toggle/', views.toggle_comentario_view, name='toggle_comentario'),
+    path('panel-admin/usuario/<int:usuario_id>/toggle-activo/', views.toggle_usuario_activo_view, name='toggle_usuario_activo'),
+    path('panel-admin/usuario/<int:usuario_id>/cambiar-rol/', views.cambiar_rol_usuario_view, name='cambiar_rol_usuario'),
+
     # OTROS URLS
     path('api/usuarios/', include('usuarios.urls')),
     path('api/fenomenos/', include('fenomenos.urls')),

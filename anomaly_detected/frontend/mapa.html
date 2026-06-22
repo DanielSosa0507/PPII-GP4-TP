@@ -8,12 +8,16 @@
         <link rel="icon" type="image/png" href="{% static 'img/Logo_final.png' %}">
     <script>
         (function () {
-            var hora = new Date().getHours();
-            var esDeDia = hora >= 6 && hora < 18;
+            var manual = localStorage.getItem('temaPreferencia');
+            var esDeDia = manual === 'claro' || manual === 'oscuro'
+                ? manual === 'claro'
+                : (new Date().getHours() >= 6 && new Date().getHours() < 18);
             if (esDeDia) document.documentElement.classList.add('light-theme');
         })();
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body class="body-cyber">
@@ -28,18 +32,13 @@
                 <h3 class="filtro-titulo">FILTROS</h3>
                 <button type="button" class="btn-filtro-cyber active" data-filtro="ovni">Avistamientos OVNI</button>
                 <button type="button" class="btn-filtro-cyber active" data-filtro="embrujado">Lugares embrujados</button>
-                <button type="button" class="btn-filtro-cyber" data-filtro="militar">Bases militares</button>
+                <button type="button" class="btn-filtro-cyber" id="toggleBasesMilitares">Bases militares (por estado)</button>
             </div>
 
             <div class="filtro-seccion">
                 <h3 class="filtro-titulo">POR ESTADO</h3>
-                <select class="select-filtro-cyber">
-                    <option>Todos los estados</option>
-                    <option>New Mexico</option>
-                    <option>Nevada</option>
-                    <option>California</option>
-                    <option>Colorado</option>
-                    <option>Arizona</option>
+                <select class="select-filtro-cyber" id="selectEstado">
+                    <option value="">Todos los estados</option>
                 </select>
             </div>
 
@@ -67,7 +66,7 @@
                         <span>4h 30m</span>
                         <span>Media</span>
                     </div>
-                    <span class="recorrido-eventos">5 puntos de interés</span>
+                    <span class="recorrido-eventos">3 puntos de interés</span>
                 </div>
 
                 <div class="recorrido-card recorrido-embrujado" data-recorrido="embrujado">
@@ -80,7 +79,7 @@
                         <span>2h 50m</span>
                         <span>Fácil</span>
                     </div>
-                    <span class="recorrido-eventos">4 puntos de interés</span>
+                    <span class="recorrido-eventos">2 puntos de interés</span>
                 </div>
 
                 <div class="recorrido-card recorrido-militar" data-recorrido="militar">
@@ -98,15 +97,6 @@
                 </div>
             </div>
 
-            <div class="filtro-seccion referencias-box">
-                <h3 class="filtro-titulo">REFERENCIAS</h3>
-                <div class="ref-item"><span class="dot verde"></span> OVNI</div>
-                <div class="ref-item"><span class="dot morado"></span> Lugar embrujado</div>
-                <div class="ref-item"><span class="dot rojo"></span> Alta concentración</div>
-                <div class="ref-item ref-item-calor hidden">
-                    <span class="gradiente-calor-mini"></span> Intensidad: baja → alta
-                </div>
-            </div>
         </aside>
 
         <main class="zona-mapa-interactivo">
@@ -122,6 +112,18 @@
                 <button class="btn-control" id="zoomIn" type="button">+</button>
                 <button class="btn-control" id="zoomOut" type="button">−</button>
                 <button class="btn-control" id="zoomReset" type="button"></button>
+            </div>
+
+            <div class="referencias-mapa-float">
+                <h3 class="filtro-titulo">REFERENCIAS</h3>
+                <div class="ref-item"><span class="dot verde"></span> OVNI</div>
+                <div class="ref-item"><span class="dot morado"></span> Lugar embrujado</div>
+                <div class="ref-item"><span class="dot azul"></span> Bases: concentración baja</div>
+                <div class="ref-item"><span class="dot naranja"></span> Bases: concentración moderada</div>
+                <div class="ref-item"><span class="dot rojo"></span> Alta concentración</div>
+                <div class="ref-item ref-item-calor hidden">
+                    <span class="gradiente-calor-mini"></span> Intensidad: baja → alta
+                </div>
             </div>
         </main>
 
@@ -162,6 +164,7 @@
     </dialog>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
     <script src="{% static 'js/mapa-leaflet.js' %}"></script>
     <script src="{% static 'js/script.js' %}"></script>
 </body>

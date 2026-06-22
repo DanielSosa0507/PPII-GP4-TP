@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly Detected - Mis Fenómenos</title>
+    <script>
+        (function () {
+            var manual = localStorage.getItem('temaPreferencia');
+            var esDeDia = manual === 'claro' || manual === 'oscuro'
+                ? manual === 'claro'
+                : (new Date().getHours() >= 6 && new Date().getHours() < 18);
+            if (esDeDia) document.documentElement.classList.add('light-theme');
+        })();
+    </script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="body-cyber">
+    {% include 'partials/navbar.html' with active='mis_fenomenos' %}
+
+    <main class="container">
+
+        {% if messages %}
+        <div class="login-messages">
+            {% for message in messages %}
+                <p class="login-message{% if message.tags %} login-message-{{ message.tags }}{% endif %}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <section class="content-header">
+            <h1 class="main-title">📋 Mis fenómenos</h1>
+            <a href="{% url 'ReportForm' %}" class="btn-submit-cyber">+ Nuevo fenómeno</a>
+        </section>
+
+        <section class="cards-grid">
+            {% for fenomeno in fenomenos %}
+            <div class="card card-{{ fenomeno.tipo }}" data-tipo="{{ fenomeno.tipo }}">
+                <span class="badge badge-{{ fenomeno.tipo }}">{{ fenomeno.get_tipo_display }}</span>
+                <div class="card-image-placeholder"><span class="card-corner-dot"></span></div>
+                <div class="card-content">
+                    <h2 class="card-title">{{ fenomeno.titulo }}</h2>
+                    <p class="card-location">{{ fenomeno.estado }} &middot; {{ fenomeno.creado_en|date:"d/m/Y" }}</p>
+                    <div class="card-footer">
+                        <span class="badge badge-estado-{{ fenomeno.estado_moderacion }}">{{ fenomeno.get_estado_moderacion_display }}</span>
+                        {% if fenomeno.estado_moderacion == 'pendiente' %}
+                        <div class="mis-fenomenos-acciones">
+                            <a href="{% url 'editar_fenomeno' fenomeno.id %}" class="btn-cancel-cyber">✎ Editar</a>
+                            <form method="POST" action="{% url 'eliminar_fenomeno' fenomeno.id %}" class="mis-fenomenos-form-eliminar">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-quitar-favorito">🗑 Eliminar</button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="favoritos-cargando">Todavía no reportaste ningún fenómeno. <a href="{% url 'ReportForm' %}">Reportá el primero →</a></p>
+            {% endfor %}
+        </section>
+    </main>
+
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

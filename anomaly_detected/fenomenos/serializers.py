@@ -2,6 +2,10 @@ from django.db import models
 from rest_framework import serializers
 from .models import Fenomeno, Validacion, Favorito, Visita, Puntuacion, Enlace
 
+# Sentinel para distinguir "la queryset no anoto este campo" de "lo anoto y dio None"
+# (un promedio anotado en None es un resultado valido: el fenomeno no tiene puntuaciones).
+_NO_ANOTADO = object()
+
 class FenomenoSerializer(serializers.ModelSerializer):
     puntuacion_promedio = serializers.SerializerMethodField()
     puntuacion_total = serializers.SerializerMethodField()
@@ -12,11 +16,16 @@ class FenomenoSerializer(serializers.ModelSerializer):
         read_only_fields = ['creado_por', 'creado_en']
 
     def get_puntuacion_promedio(self, obj):
-        promedio = obj.puntuaciones.aggregate(models.Avg('valor'))['valor__avg']
+        # Si la queryset viene anotada (ver FenomenoListCreateView/DetailView), evita
+        # una query por fenomeno; si no, calcula al vuelo (caso de fenomeno_detalle anidado).
+        promedio = getattr(obj, 'puntuacion_promedio_anotada', _NO_ANOTADO)
+        if promedio is _NO_ANOTADO:
+            promedio = obj.puntuaciones.aggregate(models.Avg('valor'))['valor__avg']
         return round(promedio, 1) if promedio else None
 
     def get_puntuacion_total(self, obj):
-        return obj.puntuaciones.count()
+        total = getattr(obj, 'puntuacion_total_anotada', None)
+        return total if total is not None else obj.puntuaciones.count()
 
 class ValidacionSerializer(serializers.ModelSerializer):
     class Meta:

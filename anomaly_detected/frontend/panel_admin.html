@@ -1,0 +1,174 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly Detected - Panel Admin</title>
+    <script>
+        (function () {
+            var manual = localStorage.getItem('temaPreferencia');
+            var esDeDia = manual === 'claro' || manual === 'oscuro'
+                ? manual === 'claro'
+                : (new Date().getHours() >= 6 && new Date().getHours() < 18);
+            if (esDeDia) document.documentElement.classList.add('light-theme');
+        })();
+    </script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="body-cyber">
+    {% include 'partials/navbar.html' with active='panel_admin' %}
+
+    <main class="container">
+
+        {% if messages %}
+        <div class="login-messages">
+            {% for message in messages %}
+                <p class="login-message{% if message.tags %} login-message-{{ message.tags }}{% endif %}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <section class="content-header">
+            <h1 class="main-title">🛠 Panel de administración</h1>
+        </section>
+
+        <section class="stats-top">
+            <div class="card">
+                <span class="card-label">Usuarios activos</span>
+                <span class="card-value">{{ kpi_usuarios_activos }}</span>
+            </div>
+            <div class="card">
+                <span class="card-label">Fenómenos pendientes</span>
+                <span class="card-value card-value-purple">{{ kpi_fenomenos_pendientes }}</span>
+            </div>
+            <div class="card">
+                <span class="card-label">Total de fenómenos</span>
+                <span class="card-value">{{ kpi_total_fenomenos }}</span>
+            </div>
+            <div class="card">
+                <span class="card-label">Nuevos esta semana</span>
+                <span class="card-value">{{ kpi_nuevos_semana }}</span>
+            </div>
+        </section>
+
+        <section class="panel-admin-bloque">
+            <h2 class="sidebar-title">COLA DE MODERACIÓN — FENÓMENOS PENDIENTES</h2>
+            <div class="cards-container">
+                {% for fenomeno in fenomenos_pendientes %}
+                <div class="card-revision">
+                    <div class="card-rev-header">
+                        <h4>{{ fenomeno.titulo }}</h4>
+                        <span class="badge badge-{{ fenomeno.tipo }}">{{ fenomeno.get_tipo_display }}</span>
+                    </div>
+                    <p class="card-rev-date">
+                        Por {{ fenomeno.creado_por.username|default:"usuario eliminado" }} &middot;
+                        Enviado: {{ fenomeno.creado_en|date:"d/m/Y" }}
+                    </p>
+                    <div class="card-rev-buttons">
+                        <form method="POST" action="{% url 'aprobar_fenomeno' fenomeno.id %}" class="mis-fenomenos-form-eliminar">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-rev-aprobar">✓ Aprobar</button>
+                        </form>
+                        <form method="POST" action="{% url 'rechazar_fenomeno' fenomeno.id %}" class="mis-fenomenos-form-eliminar">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-rev-rechazar">✕ Rechazar</button>
+                        </form>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="opcional">No hay fenómenos pendientes de revisión.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="panel-admin-bloque">
+            <h2 class="sidebar-title">COMENTARIOS RECIENTES</h2>
+            <table class="panel-admin-tabla">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Fenómeno</th>
+                        <th>Comentario</th>
+                        <th>Estado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for comentario in comentarios_recientes %}
+                    <tr>
+                        <td>{{ comentario.usuario.username|default:"usuario eliminado" }}</td>
+                        <td>{{ comentario.fenomeno.titulo }}</td>
+                        <td>{{ comentario.texto|truncatechars:60 }}</td>
+                        <td>
+                            {% if comentario.activo %}
+                                <span class="badge badge-estado-aprobado">Visible</span>
+                            {% else %}
+                                <span class="badge badge-estado-rechazado">Oculto</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="POST" action="{% url 'toggle_comentario' comentario.id %}" class="mis-fenomenos-form-eliminar">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-cancel-cyber">{% if comentario.activo %}Ocultar{% else %}Mostrar{% endif %}</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="opcional">No hay comentarios todavía.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <section class="panel-admin-bloque">
+            <h2 class="sidebar-title">GESTIÓN DE USUARIOS</h2>
+            <table class="panel-admin-tabla">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.username }}</td>
+                        <td>{{ usuario.email }}</td>
+                        <td>{{ usuario.get_rol_display }}</td>
+                        <td>
+                            {% if usuario.is_active %}
+                                <span class="badge badge-estado-aprobado">Activo</span>
+                            {% else %}
+                                <span class="badge badge-estado-rechazado">Baneado</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.id != request.user.id %}
+                            <div class="mis-fenomenos-acciones">
+                                <form method="POST" action="{% url 'toggle_usuario_activo' usuario.id %}" class="mis-fenomenos-form-eliminar">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-cancel-cyber">{% if usuario.is_active %}Banear{% else %}Desbanear{% endif %}</button>
+                                </form>
+                                <form method="POST" action="{% url 'cambiar_rol_usuario' usuario.id %}" class="mis-fenomenos-form-eliminar">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-cancel-cyber">{% if usuario.rol == 'admin' %}Quitar admin{% else %}Hacer admin{% endif %}</button>
+                                </form>
+                            </div>
+                            {% else %}
+                                <span class="opcional">(vos)</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

@@ -8,8 +8,10 @@
         <link rel="icon" type="image/png" href="{% static 'img/Logo_final.png' %}">
     <script>
         (function () {
-            var hora = new Date().getHours();
-            var esDeDia = hora >= 6 && hora < 18;
+            var manual = localStorage.getItem('temaPreferencia');
+            var esDeDia = manual === 'claro' || manual === 'oscuro'
+                ? manual === 'claro'
+                : (new Date().getHours() >= 6 && new Date().getHours() < 18);
             if (esDeDia) document.documentElement.classList.add('light-theme');
         })();
     </script>
@@ -20,10 +22,11 @@
         <div class="login-left">
             <div class="login-left-content">
                 <div class="login-icon-circle">
-                    <span class="login-icon">🛸</span>
+                    <img src="{% static 'img/logo-modo-noctur-sin-texto.png' %}" alt="Anomaly Detected" class="login-icon logo-icon-noche">
+                    <img src="{% static 'img/logo-modo-diurno-sin-texto.png' %}" alt="Anomaly Detected" class="login-icon logo-icon-dia">
                 </div>
                 <h1 class="login-brand">ANOMALY<br>DETECTED</h1>
-                <p class="login-tagline">Sumate a la comunidad y empezá<br>a explorar fenómenos paranormales<br>en EE.UU.</p>
+                <p class="login-tagline">Sumate a la comunidad y empezá<br>a explorar fenómenos paranormales.</p>
                 <a href="{% url 'index' %}" class="login-quote-link">¿La verdad está ahí afuera? →</a>
             </div>
         </div>
@@ -64,6 +67,7 @@
                         <div class="login-input-wrapper">
                             <span class="login-input-icon">🔒</span>
                             <input type="password" id="password" name="password" placeholder="Mínimo 8 caracteres" required>
+                            <button type="button" class="login-toggle-password" data-target="password" aria-label="Mostrar contraseña">👁</button>
                         </div>
                     </div>
 
@@ -72,6 +76,7 @@
                         <div class="login-input-wrapper">
                             <span class="login-input-icon">🔒</span>
                             <input type="password" id="password_confirm" name="password_confirm" placeholder="••••••••" required>
+                            <button type="button" class="login-toggle-password" data-target="password_confirm" aria-label="Mostrar contraseña">👁</button>
                         </div>
                     </div>
 

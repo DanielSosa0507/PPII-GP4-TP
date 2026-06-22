@@ -3,7 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from .models import Fenomeno, Validacion, Favorito, Visita, Puntuacion, Enlace
+from django.db.models import Avg, Count
+from .models import Fenomeno, Validacion, Favorito, Visita, Puntuacion, Enlace, BaseMilitar
 from .serializers import (
     FenomenoSerializer, ValidacionSerializer, FavoritoSerializer,
     VisitaSerializer, PuntuacionSerializer, EnlaceSerializer,
@@ -20,7 +21,10 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 class FenomenoListCreateView(generics.ListCreateAPIView):
     serializer_class = FenomenoSerializer
     permission_classes = [IsAdminOrReadOnly]
-    queryset = Fenomeno.objects.all()
+    queryset = Fenomeno.objects.annotate(
+        puntuacion_total_anotada=Count('puntuaciones'),
+        puntuacion_promedio_anotada=Avg('puntuaciones__valor'),
+    )
 
     def perform_create(self, serializer):
         serializer.save(creado_por=self.request.user)
@@ -28,7 +32,10 @@ class FenomenoListCreateView(generics.ListCreateAPIView):
 class FenomenoDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = FenomenoSerializer
     permission_classes = [IsAdminOrReadOnly]
-    queryset = Fenomeno.objects.all()
+    queryset = Fenomeno.objects.annotate(
+        puntuacion_total_anotada=Count('puntuaciones'),
+        puntuacion_promedio_anotada=Avg('puntuaciones__valor'),
+    )
 
 class ValidacionView(generics.CreateAPIView):
     serializer_class = ValidacionSerializer
@@ -98,6 +105,22 @@ class EnlaceDeleteView(generics.DestroyAPIView):
     serializer_class = EnlaceSerializer
     permission_classes = [IsAdminOrReadOnly]
     queryset = Enlace.objects.all()
+
+class BasesPorEstadoView(APIView):
+    """
+    El dataset de bases militares no trae latitud/longitud por base, así
+    que no se pueden poner como pines individuales en el mapa. Esto agrupa
+    por estado para que el frontend dibuje una burbuja en el centroide de
+    cada estado (coordenadas fijas conocidas, no vienen de la BD).
+    """
+    def get(self, request):
+        datos = (
+            BaseMilitar.objects.values('estado')
+            .annotate(cantidad=Count('id'))
+            .order_by('-cantidad')
+        )
+        return Response(list(datos))
+
 
 class DescargaPDFView(APIView):
     def get(self, request, pk):

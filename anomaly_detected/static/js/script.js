@@ -4,18 +4,28 @@
    ============================================================ */
 
 /* ------------------------------------------------------------
-   0) TEMA AUTOMÁTICO SEGÚN HORARIO (se ejecuta ANTES de pintar
-      el resto, para evitar el parpadeo de "flash" de color).
+   0) TEMA: automático según horario, salvo que el usuario haya
+      elegido uno manualmente con el switch del navbar (se guarda
+      en localStorage y tiene prioridad sobre el horario).
+      Se ejecuta ANTES de pintar el resto, para evitar el parpadeo
+      de "flash" de color.
       18:00 a 5:59  -> tema oscuro (el de siempre, sin clase extra)
-      6:00  a 17:59 -> tema claro  (clase .light-theme en <body>)
+      6:00  a 17:59 -> tema claro  (clase .light-theme en <html>)
    ------------------------------------------------------------ */
+var TEMA_MANUAL_KEY = 'temaPreferencia'; // valores guardados: 'claro' | 'oscuro'
+
 aplicarTemaSegunHorario();
 
 function aplicarTemaSegunHorario() {
-    var ahora = new Date();
-    var hora = ahora.getHours(); // 0-23, hora local del dispositivo
+    var manual = localStorage.getItem(TEMA_MANUAL_KEY);
+    var esDeDia;
 
-    var esDeDia = hora >= 6 && hora < 18; // 6:00 a 17:59
+    if (manual === 'claro' || manual === 'oscuro') {
+        esDeDia = manual === 'claro';
+    } else {
+        var hora = new Date().getHours(); // 0-23, hora local del dispositivo
+        esDeDia = hora >= 6 && hora < 18; // 6:00 a 17:59
+    }
 
     if (esDeDia) {
         document.documentElement.classList.add('light-theme');
@@ -29,7 +39,8 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.classList.toggle('light-theme', document.documentElement.classList.contains('light-theme'));
 
     // Revisa la hora cada minuto, por si alguien deja la pestaña abierta
-    // justo en el momento del cambio (las 6:00 o las 18:00).
+    // justo en el momento del cambio (las 6:00 o las 18:00). No pisa una
+    // preferencia manual: aplicarTemaSegunHorario ya le da prioridad.
     setInterval(aplicarTemaYSincronizarBody, 60 * 1000);
 
     initEventoEspecial();
@@ -39,11 +50,44 @@ document.addEventListener('DOMContentLoaded', function () {
     initReporteSelectorTipo();
     initReportesSidebarFiltros();
     initFormularioReporte();
+    initThemeToggle();
+    initPasswordToggle();
 });
 
 function aplicarTemaYSincronizarBody() {
     aplicarTemaSegunHorario();
     document.body.classList.toggle('light-theme', document.documentElement.classList.contains('light-theme'));
+}
+
+/* ------------------------------------------------------------
+   0.1) SWITCH MANUAL DE TEMA (botón en el navbar / portada).
+   ------------------------------------------------------------ */
+function initThemeToggle() {
+    var botones = document.querySelectorAll('.theme-toggle-btn');
+    botones.forEach(function (boton) {
+        boton.addEventListener('click', function () {
+            var esClaroAhora = document.documentElement.classList.contains('light-theme');
+            localStorage.setItem(TEMA_MANUAL_KEY, esClaroAhora ? 'oscuro' : 'claro');
+            aplicarTemaYSincronizarBody();
+        });
+    });
+}
+
+/* ------------------------------------------------------------
+   0.4) MOSTRAR/OCULTAR CONTRASEÑA (login y registro)
+   ------------------------------------------------------------ */
+function initPasswordToggle() {
+    var botones = document.querySelectorAll('.login-toggle-password');
+    botones.forEach(function (boton) {
+        boton.addEventListener('click', function () {
+            var input = document.getElementById(boton.dataset.target);
+            if (!input) return;
+            var oculta = input.type === 'password';
+            input.type = oculta ? 'text' : 'password';
+            boton.textContent = oculta ? '🙈' : '👁';
+            boton.setAttribute('aria-label', oculta ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        });
+    });
 }
 
 /* ------------------------------------------------------------
@@ -333,12 +377,15 @@ function initReporteSelectorTipo() {
     var botones = document.querySelectorAll('.selector-tipo .btn-tipo[data-tipo]');
     var grupoForma = document.getElementById('grupo-forma-ovni');
     var grupoEmbrujado = document.getElementById('grupo-embrujado');
+    var inputTipo = document.getElementById('input-tipo');
     if (!botones.length) return;
 
     botones.forEach(function (btn) {
         btn.addEventListener('click', function () {
             botones.forEach(function (b) { b.classList.remove('active'); });
             btn.classList.add('active');
+
+            if (inputTipo) inputTipo.value = btn.getAttribute('data-tipo');
 
             var esOvni = btn.getAttribute('data-tipo') === 'ovni';
 
@@ -387,6 +434,13 @@ function initFormularioReporte() {
                 faltante = faltante || campo;
             }
         });
+
+        var inputLat = document.getElementById('input-latitud');
+        if (!faltante && inputLat && !inputLat.value) {
+            e.preventDefault();
+            alert('Marcá la ubicación del fenómeno en el mini-mapa antes de enviar.');
+            return;
+        }
 
         if (faltante) {
             e.preventDefault();

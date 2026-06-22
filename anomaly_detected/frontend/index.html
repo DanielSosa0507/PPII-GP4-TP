@@ -8,8 +8,10 @@
     <link rel="icon" type="image/png" href="{% static 'img/Logo_final.png' %}">
     <script>
         (function () {
-            var hora = new Date().getHours();
-            var esDeDia = hora >= 6 && hora < 18;
+            var manual = localStorage.getItem('temaPreferencia');
+            var esDeDia = manual === 'claro' || manual === 'oscuro'
+                ? manual === 'claro'
+                : (new Date().getHours() >= 6 && new Date().getHours() < 18);
             if (esDeDia) document.documentElement.classList.add('light-theme');
         })();
     </script>
@@ -19,8 +21,9 @@
     <header class="header">
         <div class="container header-content">
             <div class="logo">
-                <img src="{% static 'img/Logo_final.png' %}" alt="Logo" class="nav-logo-img">
-                <span>ANOMALY DETECTED</span>
+                <img src="{% static 'img/logo-modo-noctur.png' %}" alt="Anomaly Detected" class="logo-icon logo-icon-noche">
+                <img src="{% static 'img/logo-modo-diurno.png' %}" alt="Anomaly Detected" class="logo-icon logo-icon-dia">
+                <span></span>
             </div>
             <nav class="nav">
                 <a href="{% url 'mapa' %}">Mapa</a>
@@ -33,6 +36,9 @@
                 <a href="{% url 'favoritos' %}" class="active">Favoritos</a>
             </nav>
             <div class="header-actions">
+                <button type="button" class="theme-toggle-btn" aria-label="Cambiar entre modo claro y oscuro">
+                    <span class="theme-toggle-thumb"></span>
+                </button>
                 <a href="{% url 'login' %}" class="login-btn">INICIA SESIÓN</a>
             </div>
         </div>
@@ -41,7 +47,8 @@
     <section class="hero">
         <div class="hero-content">
             <div class="hero-image">
-            <img src="{% static 'img/Logo_final.png' %}" alt="Anomaly Detected Logo" class="hero-logo-img">
+                <img src="{% static 'img/logo-modo-noctur-sin-texto.png' %}" alt="Anomaly Detected" class="logo-icon logo-icon-noche">
+                <img src="{% static 'img/logo-modo-diurno-sin-texto.png' %}" alt="Anomaly Detected" class="logo-icon logo-icon-dia">
             </div>
             <h1>ANOMALY DETECTED</h1>
             <p class="hero-subtitle">Explorá y reportá fenómenos paranormales alrededor del mundo</p>
