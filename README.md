@@ -199,5 +199,5 @@ L.marker([fenomeno.latitud, fenomeno.longitud])
 *PPII – Grupo 4 | Instituto de Formación Técnica Superior N° 18 | 2026*
  
 <p align="center">
-  <img src="./anomaly_detected/haunted-footer.svg" width="100%">
+  <img src="./anomaly_detected/haunte-footer.svg" width="100%">
 </p>
