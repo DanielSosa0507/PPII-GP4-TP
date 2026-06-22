@@ -1,0 +1,170 @@
+<svg viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lugares embrujados">
+  <defs>
+    <linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#021207"/>
+      <stop offset="55%" stop-color="#06301c"/>
+      <stop offset="100%" stop-color="#0a4d2c"/>
+    </linearGradient>
+
+    <radialGradient id="moon" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#eafff0"/>
+      <stop offset="55%" stop-color="#8fffb9"/>
+      <stop offset="100%" stop-color="#2f9c5e"/>
+    </radialGradient>
+
+    <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#9bffcf" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#9bffcf" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="ghost" cx="50%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#eafff0" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#8fffb9" stop-opacity="0.15"/>
+    </radialGradient>
+
+    <linearGradient id="fog" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9bffcf" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#9bffcf" stop-opacity="0.28"/>
+    </linearGradient>
+
+    <radialGradient id="winGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#d6ff7d" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#aaff7d" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Cielo -->
+  <rect width="1200" height="300" fill="url(#hsky)"/>
+
+  <!-- Estrellas titilantes -->
+  <g fill="#d6ffe6">
+    <circle cx="150" cy="50"  r="1.5"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.4s" begin="0s"   repeatCount="indefinite"/></circle>
+    <circle cx="380" cy="35"  r="1.2"><animate attributeName="opacity" values="0.2;1;0.2" dur="3.1s" begin="0.6s" repeatCount="indefinite"/></circle>
+    <circle cx="700" cy="60"  r="1.6"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.0s" begin="1.1s" repeatCount="indefinite"/></circle>
+    <circle cx="950" cy="40"  r="1.3"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.8s" begin="0.3s" repeatCount="indefinite"/></circle>
+    <circle cx="1090" cy="70" r="1.4"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.2s" begin="1.4s" repeatCount="indefinite"/></circle>
+    <circle cx="60"  cy="100" r="1.1"><animate attributeName="opacity" values="0.2;1;0.2" dur="3.3s" begin="0.9s" repeatCount="indefinite"/></circle>
+    <circle cx="520" cy="90"  r="1.2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.6s" begin="1.8s" repeatCount="indefinite"/></circle>
+    <circle cx="820" cy="100" r="1.3"><animate attributeName="opacity" values="0.2;1;0.2" dur="3.0s" begin="0.2s" repeatCount="indefinite"/></circle>
+  </g>
+
+  <!-- Luna -->
+  <circle cx="990" cy="95" r="90" fill="url(#moonGlow)"/>
+  <circle cx="990" cy="95" r="46" fill="url(#moon)"/>
+  <circle cx="975" cy="80" r="8"  fill="#3f9c6e" opacity="0.45"/>
+  <circle cx="1005" cy="105" r="6" fill="#3f9c6e" opacity="0.4"/>
+  <circle cx="998" cy="78" r="4"  fill="#3f9c6e" opacity="0.4"/>
+
+  <!-- Murciélagos cruzando -->
+  <g fill="#031a0e">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="-80 0; 1280 -30" dur="11s" begin="0s;14s" repeatCount="indefinite"/>
+      <path d="M0,0 Q5,-8 12,-2 Q18,-10 24,0 Q18,-3 12,3 Q6,-3 0,0 Z">
+        <animate attributeName="d"
+          values="M0,0 Q5,-8 12,-2 Q18,-10 24,0 Q18,-3 12,3 Q6,-3 0,0 Z;
+                  M0,0 Q5,-2 12,-2 Q18,-3 24,0 Q18,-1 12,1 Q6,-1 0,0 Z;
+                  M0,0 Q5,-8 12,-2 Q18,-10 24,0 Q18,-3 12,3 Q6,-3 0,0 Z"
+          dur="0.4s" repeatCount="indefinite"/>
+      </path>
+    </g>
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="-120 40; 1320 70" dur="9s" begin="3s;16s" repeatCount="indefinite"/>
+      <path d="M0,0 Q4,-6 9,-1 Q14,-8 18,0 Q14,-2 9,2 Q5,-2 0,0 Z" transform="scale(0.8)">
+        <animate attributeName="d"
+          values="M0,0 Q4,-6 9,-1 Q14,-8 18,0 Q14,-2 9,2 Q5,-2 0,0 Z;
+                  M0,0 Q4,-1 9,-1 Q14,-2 18,0 Q14,0 9,1 Q5,0 0,0 Z;
+                  M0,0 Q4,-6 9,-1 Q14,-8 18,0 Q14,-2 9,2 Q5,-2 0,0 Z"
+          dur="0.35s" repeatCount="indefinite"/>
+      </path>
+    </g>
+  </g>
+
+  <!-- Árboles secos -->
+  <g stroke="#031a0e" stroke-width="4" fill="none" stroke-linecap="round">
+    <path d="M120,300 L120,210 M120,235 L100,215 M120,250 L142,228 M120,222 L132,205"/>
+    <path d="M1130,300 L1130,225 M1130,245 L1112,228 M1130,255 L1148,238"/>
+  </g>
+
+  <!-- Mansión embrujada (silueta) -->
+  <g fill="#031a0e">
+    <!-- cuerpo principal -->
+    <rect x="430" y="180" width="240" height="120"/>
+    <!-- techo -->
+    <polygon points="430,180 550,120 670,180"/>
+    <!-- torre izquierda -->
+    <rect x="360" y="200" width="70" height="100"/>
+    <polygon points="360,200 395,150 430,200"/>
+    <!-- torre derecha -->
+    <rect x="670" y="190" width="80" height="110"/>
+    <polygon points="670,190 710,135 750,190"/>
+    <!-- cerca -->
+    <g>
+      <rect x="300" y="270" width="6" height="30"/>
+      <rect x="320" y="262" width="6" height="38"/>
+      <rect x="340" y="270" width="6" height="30"/>
+      <rect x="760" y="270" width="6" height="30"/>
+      <rect x="780" y="262" width="6" height="38"/>
+      <rect x="800" y="270" width="6" height="30"/>
+    </g>
+  </g>
+
+  <!-- Ventanas con luz parpadeante -->
+  <g>
+    <ellipse cx="478" cy="225" rx="22" ry="22" fill="url(#winGlow)">
+      <animate attributeName="opacity" values="0.3;1;0.4;1;0.3" dur="2.3s" repeatCount="indefinite"/>
+    </ellipse>
+    <rect x="468" y="215" width="20" height="26" rx="2" fill="#d6ff7d">
+      <animate attributeName="opacity" values="0.3;1;0.4;1;0.3" dur="2.3s" repeatCount="indefinite"/>
+    </rect>
+
+    <ellipse cx="558" cy="235" rx="20" ry="20" fill="url(#winGlow)">
+      <animate attributeName="opacity" values="1;0.3;1;0.5;1" dur="1.7s" repeatCount="indefinite"/>
+    </ellipse>
+    <rect x="548" y="225" width="20" height="26" rx="2" fill="#d6ff7d">
+      <animate attributeName="opacity" values="1;0.3;1;0.5;1" dur="1.7s" repeatCount="indefinite"/>
+    </rect>
+
+    <ellipse cx="705" cy="225" rx="18" ry="18" fill="url(#winGlow)">
+      <animate attributeName="opacity" values="0.4;1;0.3;1" dur="3.1s" repeatCount="indefinite"/>
+    </ellipse>
+    <rect x="697" y="216" width="16" height="22" rx="2" fill="#aaff7d">
+      <animate attributeName="opacity" values="0.4;1;0.3;1" dur="3.1s" repeatCount="indefinite"/>
+    </rect>
+
+    <!-- ventanita de la torre -->
+    <rect x="388" y="170" width="14" height="20" rx="2" fill="#d6ff7d">
+      <animate attributeName="opacity" values="0.2;0.9;0.2;0.9" dur="2.6s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- Fantasmas flotando -->
+  <g>
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 0 -16; 0 0" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.55;0.95;0.55" dur="4s" repeatCount="indefinite"/>
+      <path d="M170,250 q0,-40 36,-40 q36,0 36,40 l0,34 q-9,-10 -18,0 q-9,10 -18,0 q-9,-10 -18,0 q-9,10 -18,0 Z" fill="url(#ghost)"/>
+      <circle cx="196" cy="232" r="4" fill="#031a0e"/>
+      <circle cx="216" cy="232" r="4" fill="#031a0e"/>
+    </g>
+
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 0 -22; 0 0" dur="5.4s" begin="1.2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.4;0.85;0.4" dur="5.4s" begin="1.2s" repeatCount="indefinite"/>
+      <g transform="translate(880,210) scale(0.7)">
+        <path d="M0,40 q0,-40 36,-40 q36,0 36,40 l0,34 q-9,-10 -18,0 q-9,10 -18,0 q-9,-10 -18,0 q-9,10 -18,0 Z" fill="url(#ghost)"/>
+        <circle cx="26" cy="22" r="4" fill="#031a0e"/>
+        <circle cx="46" cy="22" r="4" fill="#031a0e"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- Niebla a la deriva -->
+  <g>
+    <ellipse cx="300" cy="300" rx="320" ry="40" fill="url(#fog)">
+      <animateTransform attributeName="transform" type="translate" values="-60 0; 60 0; -60 0" dur="12s" repeatCount="indefinite"/>
+    </ellipse>
+    <ellipse cx="850" cy="300" rx="360" ry="34" fill="url(#fog)">
+      <animateTransform attributeName="transform" type="translate" values="50 0; -50 0; 50 0" dur="15s" repeatCount="indefinite"/>
+    </ellipse>
+  </g>
+</svg>

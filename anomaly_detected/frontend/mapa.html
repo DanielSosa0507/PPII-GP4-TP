@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anomaly Detected - Mapa Interactivo</title>
+        <link rel="icon" type="image/png" href="{% static 'img/Logo_final.png' %}">
     <script>
         (function () {
             var manual = localStorage.getItem('temaPreferencia');
@@ -139,6 +140,7 @@
             <div class="modal-ficha-acciones">
                 <button type="button" class="btn-favorito-popup" id="fichaBtnFavorito">♡ Agregar a favoritos</button>
                 <button type="button" class="btn-favorito-popup" id="fichaBtnVisitado">Marcar como visitado</button>
+                <a class="btn-favorito-popup" id="fichaBtnPdf" href="#" target="_blank">⬇ PDF</a>
             </div>
             <div class="modal-ficha-mi-puntuacion" id="fichaMiPuntuacion"></div>
         </div>

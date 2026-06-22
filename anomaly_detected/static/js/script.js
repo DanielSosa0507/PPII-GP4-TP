@@ -107,13 +107,72 @@ function initEventoEspecial() {
     document.documentElement.classList.add('evento-' + evento.clase);
     insertarBannerEvento(evento);
     insertarDecoracionEvento(evento);
+    aplicarTemaEvento(evento);
+    mostrarPopupEvento(evento);
+}
+
+function aplicarTemaEvento(evento) {
+    // Cambia el color del body y navbar según el evento
+    document.body.classList.add('tema-evento-' + evento.clase);
+}
+
+function mostrarPopupEvento(evento) {
+    // Solo muestra el popup una vez por sesión
+    var key = 'popup_evento_' + evento.clase;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, '1');
+
+    var popup = document.createElement('div');
+    popup.className = 'popup-evento popup-evento-' + evento.clase;
+
+    var contenido = evento.clase === 'halloween'
+        ? { titulo: '🎃 ¡Noche de Halloween!', texto: 'Esta noche el velo entre mundos se adelgaza. Explorá los lugares más embrujados del mapa y compartí tus teorías en la comunidad.', btn: 'Explorar lugares embrujados' }
+        : { titulo: '🌕 ¡Noche de Luna llena!', texto: 'La visibilidad nocturna está en su punto máximo. Es la noche ideal para observar el cielo y reportar avistamientos.', btn: 'Ver el mapa' };
+
+    popup.innerHTML =
+        '<div class="popup-evento-contenido">' +
+            '<button class="popup-evento-cerrar" onclick="this.closest(\'.popup-evento\').remove()">✕</button>' +
+            '<p class="popup-evento-titulo">' + contenido.titulo + '</p>' +
+            '<p class="popup-evento-texto">' + contenido.texto + '</p>' +
+            '<button class="popup-evento-btn" onclick="this.closest(\'.popup-evento\').remove()">' + contenido.btn + '</button>' +
+        '</div>';
+
+    document.body.appendChild(popup);
+
+    // Auto-cierra después de 8 segundos
+    setTimeout(function() {
+        if (popup.parentNode) {
+            popup.style.opacity = '0';
+            popup.style.transition = 'opacity 0.5s';
+            setTimeout(function() { if (popup.parentNode) popup.remove(); }, 500);
+        }
+    }, 8000);
 }
 
 function detectarEventoActivo() {
+    // Parámetro de URL para forzar un evento (útil para demos y presentaciones)
+    // Uso: ?evento=halloween o ?evento=luna
+    var params = new URLSearchParams(window.location.search);
+    var preview = params.get('evento');
+    if (preview === 'halloween') {
+        return {
+            clase: 'halloween',
+            mensaje: '🎃 Modo Halloween activado — Ruta embrujada especial todo octubre',
+            iconos: ['🎃', '🦇', '👻', '🕸️'],
+        };
+    }
+    if (preview === 'luna') {
+        return {
+            clase: 'luna-llena',
+            mensaje: '🌕 Noche de Luna llena — mayor visibilidad nocturna para avistamientos hoy',
+            iconos: ['🌕', '✨', '🌌', '👁️'],
+        };
+    }
+
     var ahora = new Date();
 
     // --- Halloween: todo octubre ---
-    if (ahora.getMonth() === 9) { // 0-indexado: 9 = octubre
+    if (ahora.getMonth() === 9) {
         return {
             clase: 'halloween',
             mensaje: 'Modo Halloween activado — Ruta embrujada especial todo octubre',
@@ -184,50 +243,94 @@ function initComunidadTabs() {
     var tabs = document.querySelectorAll('.tab[data-tab]');
     if (!tabs.length) return;
 
+    var tabActual = 'teorias';
+
+    function filtrarPosts(tabId) {
+        document.querySelectorAll('#feed-posts .post-card[data-tab]').forEach(function (post) {
+            post.style.display = post.getAttribute('data-tab') === tabId ? '' : 'none';
+        });
+    }
+
+    filtrarPosts(tabActual); // aplica al cargar
+
     tabs.forEach(function (tab) {
         tab.addEventListener('click', function () {
             tabs.forEach(function (t) { t.classList.remove('active'); });
             tab.classList.add('active');
-            // En esta versión sin backend, solo cambiamos el estado visual.
-            // Si en el futuro se separa el feed por categoría, acá se filtraría.
+            tabActual = tab.getAttribute('data-tab');
+            filtrarPosts(tabActual);
         });
     });
+
+    // Expone tabActual para que el botón Publicar lo use
+    window._comunidadTabActual = function () { return tabActual; };
 }
 
 /* ------------------------------------------------------------
    3) VOTOS DE COMUNIDAD (Creíble / Dudoso / Muy extraño)
+      + BOTÓN PUBLICAR (agrega post real al feed)
    ------------------------------------------------------------ */
 function initComunidadVotos() {
-    var botones = document.querySelectorAll('.btn-vote');
-    if (!botones.length) return;
-
-    botones.forEach(function (btn) {
-        var yaVoto = false;
-        btn.addEventListener('click', function () {
-            if (yaVoto) return; // evita sumar votos infinitos en la demo
-            var match = btn.textContent.match(/\((\d+)\)/);
-            if (match) {
-                var actual = parseInt(match[1], 10);
-                btn.textContent = btn.textContent.replace(/\(\d+\)/, '(' + (actual + 1) + ')');
-            }
-            btn.classList.add('btn-vote-creible');
-            yaVoto = true;
-        });
+    // Votos en posts existentes
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('.btn-vote');
+        if (!btn) return;
+        if (btn.dataset.votado) return;
+        var match = btn.textContent.match(/\((\d+)\)/);
+        if (match) {
+            var actual = parseInt(match[1], 10);
+            btn.textContent = btn.textContent.replace(/\(\d+\)/, '(' + (actual + 1) + ')');
+        }
+        btn.classList.add('btn-vote-creible');
+        btn.dataset.votado = '1';
     });
 
-    // Botón "Publicar" en el creador de post
+    // Botón Publicar
     var btnPublish = document.querySelector('.btn-publish');
-    var textarea = document.querySelector('.post-creator textarea');
-    if (btnPublish && textarea) {
-        btnPublish.addEventListener('click', function () {
-            if (textarea.value.trim() === '') {
-                textarea.focus();
-                return;
-            }
-            textarea.value = '';
-            textarea.placeholder = '¡Publicado! Compartí tu próxima teoría o experiencia...';
-        });
-    }
+    var textarea = document.getElementById('nuevaPublicacion');
+    if (!btnPublish || !textarea) return;
+
+    btnPublish.addEventListener('click', function () {
+        var texto = textarea.value.trim();
+        if (!texto) { textarea.focus(); return; }
+
+        var tabActual = window._comunidadTabActual ? window._comunidadTabActual() : 'teorias';
+        var tabLabel = { teorias: 'Teoría', experiencias: 'Experiencia', eventos: 'Evento' }[tabActual] || 'Teoría';
+
+        var nuevoPost = document.createElement('article');
+        nuevoPost.className = 'post-card post-nuevo';
+        nuevoPost.setAttribute('data-tab', tabActual);
+        nuevoPost.innerHTML =
+            '<div class="user-info">' +
+                '<div class="avatar">👤</div>' +
+                '<div class="meta">' +
+                    '<strong>Vos</strong> <span class="user-tag">' + tabLabel + '</span>' +
+                    '<small>Ahora mismo</small>' +
+                '</div>' +
+            '</div>' +
+            '<p>' + texto.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p>' +
+            '<div class="actions">' +
+                '<button class="btn-vote" type="button">Creíble (0)</button>' +
+                '<button class="btn-vote" type="button">Dudoso (0)</button>' +
+                '<button class="btn-vote" type="button">Muy extraño (0)</button>' +
+            '</div>' +
+            '<div class="stats"><span>👍 0</span> <span>💬 0 respuestas</span> <span>🔗 Compartir</span></div>';
+
+        var feed = document.getElementById('feed-posts');
+        feed.insertBefore(nuevoPost, feed.firstChild);
+
+        // Animación de entrada
+        nuevoPost.style.opacity = '0';
+        nuevoPost.style.transform = 'translateY(-10px)';
+        nuevoPost.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        setTimeout(function () {
+            nuevoPost.style.opacity = '1';
+            nuevoPost.style.transform = 'translateY(0)';
+        }, 10);
+
+        textarea.value = '';
+        textarea.placeholder = '¡Publicado! Compartí tu próxima teoría o experiencia...';
+    });
 }
 
 /* ------------------------------------------------------------
@@ -302,7 +405,7 @@ function initReporteSelectorTipo() {
 }
 
 /* ------------------------------------------------------------
-   FILTROS DE TIPO EN SIDEBAR DE REPORTES (OVNIs / Embrujados)
+   9) FILTROS DE TIPO EN SIDEBAR DE REPORTES (OVNIs / Embrujados)
    ------------------------------------------------------------ */
 function initReportesSidebarFiltros() {
     var botones = document.querySelectorAll('.filter-box-btn[data-tipo]');
@@ -313,21 +416,10 @@ function initReportesSidebarFiltros() {
             btn.classList.toggle('active');
         });
     });
-
-    var exportarBtn = document.getElementById('exportarPdf');
-    if (exportarBtn) {
-        exportarBtn.addEventListener('click', function () {
-            var original = exportarBtn.textContent;
-            exportarBtn.textContent = '✓ Generando...';
-            setTimeout(function () {
-                exportarBtn.textContent = original;
-            }, 1500);
-        });
-    }
 }
 
 /* ------------------------------------------------------------
-   ENVÍO DEL FORMULARIO DE REPORTE (validación simple en front)
+   10) ENVÍO DEL FORMULARIO DE REPORTE (validación simple en front)
    ------------------------------------------------------------ */
 function initFormularioReporte() {
     var form = document.getElementById('form-reporte');

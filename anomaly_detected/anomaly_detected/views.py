@@ -30,7 +30,8 @@ def login_required_con_mensaje(vista):
 
 def admin_required(vista):
     """
-    Igual que @login_required_con_mensaje, pero además exige rol == 'admin'.
+    Decorador que protege vistas exclusivas de administradores
+    (rol == 'admin'). Si no es admin, redirige al inicio con mensaje.
     """
     @wraps(vista)
     def wrapper(request, *args, **kwargs):
@@ -306,3 +307,9 @@ def cambiar_rol_usuario_view(request, usuario_id):
 # MAPA (libre, no requiere cuenta — visitantes también pueden explorar)
 def mapa_view(request):
     return render(request, 'mapa.html')
+
+
+# PANEL DE ADMINISTRACIÓN (solo rol == 'admin')
+@admin_required
+def admin_panel(request):
+    return render(request, 'admin_panel.html')

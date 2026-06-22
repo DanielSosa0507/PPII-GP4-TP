@@ -218,6 +218,8 @@
         btnFav.className = 'btn-favorito-popup' + (esFavorito ? ' es-favorito' : '');
         btnFav.textContent = esFavorito ? '♥ Quitar de favoritos' : '♡ Agregar a favoritos';
 
+        document.getElementById('fichaBtnPdf').href = '/api/fenomenos/' + f.id + '/pdf/';
+
         var btnVis = document.getElementById('fichaBtnVisitado');
         var esVisitado = !!VISITAS[f.id];
         btnVis.setAttribute('data-fenomeno', f.id);

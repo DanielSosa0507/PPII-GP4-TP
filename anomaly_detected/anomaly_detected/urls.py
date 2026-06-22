@@ -37,6 +37,9 @@ urlpatterns = [
     path('perfil/editar/', editar_perfil_view, name='editar_perfil'),
     path('perfil/eliminar/', eliminar_cuenta_view, name='eliminar_cuenta'),
  
+    # PANEL DE ADMINISTRACIÓN (solo rol admin)
+    path('admin-panel/', views.admin_panel, name='admin_panel'),
+ 
     # OTRAS PAGINAS
     path('reportes/', views.reportes, name='reportes'),
     path('comunidad/', views.comunidad, name='comunidad'),

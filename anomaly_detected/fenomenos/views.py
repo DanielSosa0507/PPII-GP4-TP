@@ -127,7 +127,7 @@ class DescargaPDFView(APIView):
         fenomeno = get_object_or_404(Fenomeno, pk=pk)
 
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{fenomeno.titulo}.pdf"'
+        response['Content-Disposition'] = f'inline; filename="{fenomeno.titulo}.pdf"'
 
         p = canvas.Canvas(response)
         p.setFont("Helvetica-Bold", 16)
