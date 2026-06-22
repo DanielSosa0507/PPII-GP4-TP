@@ -230,12 +230,15 @@ function initReporteSelectorTipo() {
     var botones = document.querySelectorAll('.selector-tipo .btn-tipo[data-tipo]');
     var grupoForma = document.getElementById('grupo-forma-ovni');
     var grupoEmbrujado = document.getElementById('grupo-embrujado');
+    var inputTipo = document.getElementById('input-tipo');
     if (!botones.length) return;
 
     botones.forEach(function (btn) {
         btn.addEventListener('click', function () {
             botones.forEach(function (b) { b.classList.remove('active'); });
             btn.classList.add('active');
+
+            if (inputTipo) inputTipo.value = btn.getAttribute('data-tipo');
 
             var esOvni = btn.getAttribute('data-tipo') === 'ovni';
 
@@ -295,6 +298,13 @@ function initFormularioReporte() {
                 faltante = faltante || campo;
             }
         });
+
+        var inputLat = document.getElementById('input-latitud');
+        if (!faltante && inputLat && !inputLat.value) {
+            e.preventDefault();
+            alert('Marcá la ubicación del fenómeno en el mini-mapa antes de enviar.');
+            return;
+        }
 
         if (faltante) {
             e.preventDefault();

@@ -8,6 +8,17 @@ class Fenomeno(models.Model):
         ('embrujado', 'Lugar Embrujado'),
         ('otro', 'Otro'),
     ]
+    ESTADOS_MODERACION = [
+        ('pendiente', 'Pendiente'),
+        ('aprobado', 'Aprobado'),
+        ('rechazado', 'Rechazado'),
+    ]
+    ACTIVIDADES = [
+        ('baja', 'Baja'),
+        ('moderada', 'Moderada'),
+        ('alta', 'Alta'),
+        ('extrema', 'Extrema'),
+    ]
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField()
     tipo = models.CharField(max_length=20, choices=TIPOS)
@@ -18,6 +29,15 @@ class Fenomeno(models.Model):
     imagen = models.ImageField(upload_to='fenomenos/', null=True, blank=True)
     creado_por = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True)
     validado = models.BooleanField(default=False)
+    estado_moderacion = models.CharField(max_length=10, choices=ESTADOS_MODERACION, default='pendiente')
+    # Nivel de intensidad para el mapa de calor (mapa-leaflet.js lee este
+    # mismo nombre de campo y estos mismos valores en INTENSIDAD_COLOR/RADIO).
+    actividad = models.CharField(max_length=10, choices=ACTIVIDADES, blank=True)
+    # True por defecto porque lo que escribe un usuario en el ABM ya está en
+    # castellano. El import de datasets en inglés lo pone en False, y el
+    # comando traducir_descripciones lo va poniendo en True a medida que
+    # traduce — así el proceso se puede interrumpir y retomar sin repetir.
+    descripcion_traducida = models.BooleanField(default=True)
     creado_en = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -67,3 +87,18 @@ class Enlace(models.Model):
     titulo = models.CharField(max_length=200)
     url = models.URLField()
     creado_en = models.DateTimeField(auto_now_add=True)
+
+
+class BaseMilitar(models.Model):
+    """
+    Dataset de bases militares de EE.UU. No tiene latitud/longitud (el CSV
+    de origen no las trae), así que no se dibuja como pin en el mapa — se
+    usa solo para la estadística "cantidad de bases vs avistamientos por
+    estado" que pide la propuesta.
+    """
+    nombre = models.CharField(max_length=200)
+    estado = models.CharField(max_length=100, blank=True)
+    operativa = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.nombre

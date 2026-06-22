@@ -12,6 +12,7 @@
             if (esDeDia) document.documentElement.classList.add('light-theme');
         })();
     </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body class="body-cyber">
@@ -22,27 +23,28 @@
         <main class="main-content layout-reportar">
 
             <section class="seccion-formulario">
-                <h2 class="form-main-title">+ Reportar nuevo fenómeno</h2>
+                <h2 class="form-main-title">{% if fenomeno %}✎ Editar fenómeno{% else %}+ Reportar nuevo fenómeno{% endif %}</h2>
 
-                <form id="form-reporte" method="POST" action="" class="form-cyber">
+                <form id="form-reporte" method="POST" action="" class="form-cyber" enctype="multipart/form-data">
                     {% csrf_token %}
 
                     <div class="form-group full-width">
                         <label>Tipo de fenómeno *</label>
+                        <input type="hidden" name="tipo" id="input-tipo" value="{% if fenomeno %}{{ fenomeno.tipo }}{% else %}ovni{% endif %}">
                         <div class="selector-tipo">
-                            <button type="button" class="btn-tipo active" data-tipo="ovni">🛸 Avistamiento OVNI</button>
-                            <button type="button" class="btn-tipo" data-tipo="embrujado">🔒 Lugar embrujado</button>
+                            <button type="button" class="btn-tipo{% if not fenomeno or fenomeno.tipo == 'ovni' %} active{% endif %}" data-tipo="ovni">🛸 Avistamiento OVNI</button>
+                            <button type="button" class="btn-tipo{% if fenomeno.tipo == 'embrujado' %} active{% endif %}" data-tipo="embrujado">🔒 Lugar embrujado</button>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label>Lugar / Ubicación *</label>
-                            <input type="text" placeholder="Ciudad, Estado" required class="input-cyber">
+                            <input type="text" name="lugar" value="{{ lugar_inicial }}" placeholder="Ciudad, Estado" required class="input-cyber">
                         </div>
                         <div class="form-group">
                             <label>Fecha *</label>
-                            <input type="text" placeholder="dd/mm/aaaa" required class="input-cyber">
+                            <input type="text" name="fecha" value="{{ fenomeno.fecha_ocurrencia|date:'d/m/Y'|default:'' }}" placeholder="dd/mm/aaaa" required class="input-cyber">
                         </div>
                     </div>
 
@@ -55,6 +57,15 @@
                             <label>Duración <span class="opcional">(opcional)</span></label>
                             <input type="text" placeholder="Ej: 5 minutos" class="input-cyber">
                         </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Ubicación en el mapa *</label>
+                        <p class="opcional">Hacé clic en el mapa para marcar el punto exacto del fenómeno.</p>
+                        <div id="mini-mapa-reporte" class="mini-mapa-reporte"
+                             {% if fenomeno %}data-lat="{{ fenomeno.latitud }}" data-lng="{{ fenomeno.longitud }}"{% endif %}></div>
+                        <input type="hidden" name="latitud" id="input-latitud" value="{% if fenomeno %}{{ fenomeno.latitud }}{% endif %}">
+                        <input type="hidden" name="longitud" id="input-longitud" value="{% if fenomeno %}{{ fenomeno.longitud }}{% endif %}">
                     </div>
 
                     <div class="form-group full-width" id="grupo-forma-ovni">
@@ -83,52 +94,45 @@
 
                     <div class="form-group full-width">
                         <label>Descripción del evento *</label>
-                        <textarea placeholder="Describí lo que viste o experimentaste..." required class="textarea-cyber"></textarea>
+                        <textarea name="descripcion" placeholder="Describí lo que viste o experimentaste..." required class="textarea-cyber">{% if fenomeno %}{{ fenomeno.descripcion }}{% endif %}</textarea>
                     </div>
 
                     <div class="form-group full-width">
                         <label>Evidencia adjunta <span class="opcional">(opcional)</span></label>
-                        <div class="upload-zone-cyber">
+                        <label class="upload-zone-cyber" for="input-imagen">
                             <span class="upload-icon">📥</span>
-                            <p>Subí imágenes o pegá un enlace a noticias</p>
-                        </div>
+                            <p>Subí una imagen (opcional)</p>
+                            <input type="file" name="imagen" id="input-imagen" accept="image/*" class="upload-input-real">
+                        </label>
+                        <input type="url" name="enlace_url" placeholder="https://... (link a una noticia o artículo, opcional)" class="input-cyber">
                     </div>
 
                     <div class="form-actions full-width">
-                        <button type="submit" class="btn-submit-cyber">🚀 Enviar para revisión</button>
-                        <a href="{% url 'reportes' %}" class="btn-cancel-cyber">Cancelar</a>
+                        <button type="submit" class="btn-submit-cyber">{% if fenomeno %}💾 Guardar cambios{% else %}🚀 Enviar para revisión{% endif %}</button>
+                        <a href="{% url 'mis_fenomenos' %}" class="btn-cancel-cyber">Cancelar</a>
                     </div>
                 </form>
             </section>
 
             <aside class="seccion-revision">
-                <h3 class="sidebar-title">PENDIENTES DE REVISIÓN</h3>
+                <h3 class="sidebar-title">TUS REPORTES RECIENTES</h3>
 
                 <div class="cards-container">
+                    {% for fenomeno in mis_reportes_recientes %}
                     <div class="card-revision">
                         <div class="card-rev-header">
-                            <h4>Roswell, NM</h4>
-                            <span class="badge badge-ovni">OVNI</span>
+                            <h4>{{ fenomeno.titulo }}</h4>
+                            <span class="badge badge-{{ fenomeno.tipo }}">{{ fenomeno.get_tipo_display }}</span>
                         </div>
-                        <p class="card-rev-date">Enviado: 01/06/2026</p>
-                        <div class="card-rev-buttons">
-                            <button type="button" class="btn-rev-aprobar">✓ Aprobar</button>
-                            <button type="button" class="btn-rev-rechazar">✕ Rechazar</button>
-                        </div>
+                        <p class="card-rev-date">Enviado: {{ fenomeno.creado_en|date:"d/m/Y" }}</p>
+                        <span class="badge badge-estado-{{ fenomeno.estado_moderacion }}">{{ fenomeno.get_estado_moderacion_display }}</span>
                     </div>
-
-                    <div class="card-revision">
-                        <div class="card-rev-header">
-                            <h4>Winchester House</h4>
-                            <span class="badge badge-embrujado">Embrujado</span>
-                        </div>
-                        <p class="card-rev-date">Enviado: 31/05/2026</p>
-                        <div class="card-rev-buttons">
-                            <button type="button" class="btn-rev-aprobar">✓ Aprobar</button>
-                            <button type="button" class="btn-rev-rechazar">✕ Rechazar</button>
-                        </div>
-                    </div>
+                    {% empty %}
+                    <p class="opcional">Todavía no enviaste ningún reporte.</p>
+                    {% endfor %}
                 </div>
+
+                <a href="{% url 'mis_fenomenos' %}" class="btn-cancel-cyber">Ver todos mis fenómenos →</a>
 
                 <div class="info-box-cyber">
                     <p>Tu reporte será revisado por un administrador antes de ser publicado en el mapa.</p>
@@ -138,6 +142,8 @@
         </main>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/reporte-mapa.js' %}"></script>
 </body>
 </html>
