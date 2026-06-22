@@ -54,23 +54,25 @@
                 <div class="stats-top">
                     <div class="card">
                         <span class="card-label">Total avistamientos OVNI</span>
-                        <span class="card-value">98.4K</span>
-                        <span class="card-sub">Registrados 1975—2024</span>
+                        <span class="card-value">{{ total_ovni }}</span>
+                        <span class="card-sub">
+                            {% if anio_desde and anio_hasta %}Registrados {{ anio_desde }}—{{ anio_hasta }}{% else %}Sin fecha registrada{% endif %}
+                        </span>
                     </div>
                     <div class="card">
                         <span class="card-label">Lugares embrujados</span>
-                        <span class="card-value card-value-purple">10.2K</span>
-                        <span class="card-sub">En todo EE.UU.</span>
+                        <span class="card-value card-value-purple">{{ total_embrujados }}</span>
+                        <span class="card-sub">En total</span>
                     </div>
                     <div class="card">
                         <span class="card-label">Estado más activo</span>
-                        <span class="card-value">New Mexico</span>
-                        <span class="card-sub">1.2 por 100k hab.</span>
+                        <span class="card-value">{{ estado_top|default:"Sin datos" }}</span>
+                        <span class="card-sub">{{ estado_top_total }} fenómenos reportados</span>
                     </div>
                     <div class="card">
                         <span class="card-label">Pico de actividad</span>
-                        <span class="card-value">2012</span>
-                        <span class="card-sub">Mayor cantidad de reportes</span>
+                        <span class="card-value">{{ anio_pico|default:"Sin datos" }}</span>
+                        <span class="card-sub">{{ anio_pico_total }} avistamientos OVNI ese año</span>
                     </div>
                 </div>
 

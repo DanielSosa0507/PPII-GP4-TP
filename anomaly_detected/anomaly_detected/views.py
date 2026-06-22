@@ -4,6 +4,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
+from django.db.models import Count, Min, Max
+from django.db.models.functions import ExtractYear
 from django.urls import reverse
 from django.utils import timezone
 from functools import wraps
@@ -66,10 +68,51 @@ def index(request):
     return render(request, 'index.html')
 
 
+def formato_compacto(numero):
+    """Convierte 12345 en '12.3K'; deja los numeros chicos sin cambios."""
+    if numero >= 1000:
+        return f"{numero / 1000:.1f}K"
+    return str(numero)
+
+
 # REPORTES (requiere cuenta)
 @login_required_con_mensaje
 def reportes(request):
-    return render(request, 'reportes.html')
+    total_ovni = Fenomeno.objects.filter(tipo='ovni').count()
+    total_embrujados = Fenomeno.objects.filter(tipo='embrujado').count()
+
+    rango_anios = Fenomeno.objects.filter(
+        tipo='ovni', fecha_ocurrencia__isnull=False
+    ).aggregate(desde=Min('fecha_ocurrencia'), hasta=Max('fecha_ocurrencia'))
+
+    estado_top = (
+        Fenomeno.objects.exclude(estado='')
+        .values('estado')
+        .annotate(total=Count('id'))
+        .order_by('-total')
+        .first()
+    )
+
+    anio_pico = (
+        Fenomeno.objects.filter(tipo='ovni', fecha_ocurrencia__isnull=False)
+        .annotate(anio=ExtractYear('fecha_ocurrencia'))
+        .values('anio')
+        .annotate(total=Count('id'))
+        .order_by('-total')
+        .first()
+    )
+
+    contexto = {
+        'total_ovni': formato_compacto(total_ovni),
+        'total_embrujados': formato_compacto(total_embrujados),
+        'anio_desde': rango_anios['desde'].year if rango_anios['desde'] else None,
+        'anio_hasta': rango_anios['hasta'].year if rango_anios['hasta'] else None,
+        'estado_top': estado_top['estado'] if estado_top else None,
+        'estado_top_total': estado_top['total'] if estado_top else 0,
+        'anio_pico': anio_pico['anio'] if anio_pico else None,
+        'anio_pico_total': anio_pico['total'] if anio_pico else 0,
+    }
+    return render(request, 'reportes.html', contexto)
 
 
 # COMUNIDAD (requiere cuenta)
