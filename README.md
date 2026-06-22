@@ -8,26 +8,26 @@
     </linearGradient>
 
     <!-- Domo del platillo -->
-    <radialGradient id="dome" cx="50%" cy="30%" r="80%">
+  <radialGradient id="dome" cx="50%" cy="30%" r="80%">
       <stop offset="0%" stop-color="#d6ffe6"/>
       <stop offset="60%" stop-color="#5af0a0"/>
       <stop offset="100%" stop-color="#1f9c5e"/>
     </radialGradient>
 
     <!-- Cuerpo metálico del platillo -->
-    <linearGradient id="hull" x1="0" y1="0" x2="0" y2="1">
+  <linearGradient id="hull" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#cfe8d8"/>
       <stop offset="45%" stop-color="#6fae88"/>
       <stop offset="100%" stop-color="#2f5a42"/>
     </linearGradient>
 
     <!-- Rayo tractor -->
-    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+  <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#9bffcf" stop-opacity="0.85"/>
       <stop offset="100%" stop-color="#9bffcf" stop-opacity="0"/>
     </linearGradient>
 
-    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+  <radialGradient id="glow" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#9bffcf" stop-opacity="0.7"/>
       <stop offset="100%" stop-color="#9bffcf" stop-opacity="0"/>
     </radialGradient>
