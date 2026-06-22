@@ -543,7 +543,7 @@
     var RUTAS = {
         ovni: {
             titulo: 'Ruta OVNI',
-            descripcion: 'Un recorrido por 3 sitios clásicos de avistamientos OVNI en EE.UU.',
+            descripcion: 'Un recorrido por 3 sitios clásicos de avistamientos OVNI.',
             color: '#adff2f',
             // Este→oeste para que la línea no quede cruzada.
             puntosCustom: [
