@@ -1,4 +1,5 @@
 <img width=100% src="https://capsule-render.vercel.app/api?type=waving&color=08D85A&height=120&section=header"/>
+
 ## Anomaly Detected
  
 > Red social geográfica para el reporte, exploración y debate de fenómenos paranormales e inexplicados.
