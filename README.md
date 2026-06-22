@@ -64,32 +64,26 @@
   <g>
     <animateTransform attributeName="transform" type="translate"
       values="0 0; 0 -14; 0 0" dur="3.6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"/>
-
-    <!-- Deriva horizontal sutil -->
+<!-- Deriva horizontal sutil -->
     <g>
       <animateTransform attributeName="transform" type="translate"
         values="0 0; 18 0; 0 0" dur="8s" repeatCount="indefinite" additive="sum"
         calcMode="spline" keySplines="0.45 0 0.55 1; 0.45 0 0.55 1"/>
-
-      <!-- Rayo tractor -->
+<!-- Rayo tractor -->
       <polygon points="600,160 550,300 650,300" fill="url(#beam)">
         <animate attributeName="opacity" values="0.25;0.9;0.25" dur="2s" repeatCount="indefinite"/>
       </polygon>
       <ellipse cx="600" cy="300" rx="55" ry="10" fill="url(#glow)">
         <animate attributeName="opacity" values="0.2;0.8;0.2" dur="2s" repeatCount="indefinite"/>
       </ellipse>
-
-      <!-- Resplandor inferior del platillo -->
+<!-- Resplandor inferior del platillo -->
       <ellipse cx="600" cy="150" rx="110" ry="26" fill="url(#glow)" opacity="0.5"/>
-
-      <!-- Cuerpo del platillo -->
+ <!-- Cuerpo del platillo -->
       <ellipse cx="600" cy="148" rx="100" ry="30" fill="url(#hull)" stroke="#1c3527" stroke-width="1.5"/>
-
-      <!-- Domo -->
+<!-- Domo -->
       <path d="M 555 138 A 45 45 0 0 1 645 138 Z" fill="url(#dome)" stroke="#7fffb9" stroke-width="1.5"/>
       <ellipse cx="585" cy="120" rx="12" ry="6" fill="#ffffff" opacity="0.5"/>
-
-      <!-- Lucecitas parpadeantes -->
+<!-- Lucecitas parpadeantes -->
       <circle cx="530" cy="152" r="6" fill="#aaff7d">
         <animate attributeName="opacity" values="0.2;1;0.2" dur="0.9s" begin="0s" repeatCount="indefinite"/>
       </circle>
