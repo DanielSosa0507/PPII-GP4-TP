@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initReportesSidebarFiltros();
     initFormularioReporte();
     initThemeToggle();
+    initPasswordToggle();
 });
 
 function aplicarTemaYSincronizarBody() {
@@ -68,6 +69,23 @@ function initThemeToggle() {
             var esClaroAhora = document.documentElement.classList.contains('light-theme');
             localStorage.setItem(TEMA_MANUAL_KEY, esClaroAhora ? 'oscuro' : 'claro');
             aplicarTemaYSincronizarBody();
+        });
+    });
+}
+
+/* ------------------------------------------------------------
+   0.4) MOSTRAR/OCULTAR CONTRASEÑA (login y registro)
+   ------------------------------------------------------------ */
+function initPasswordToggle() {
+    var botones = document.querySelectorAll('.login-toggle-password');
+    botones.forEach(function (boton) {
+        boton.addEventListener('click', function () {
+            var input = document.getElementById(boton.dataset.target);
+            if (!input) return;
+            var oculta = input.type === 'password';
+            input.type = oculta ? 'text' : 'password';
+            boton.textContent = oculta ? '🙈' : '👁';
+            boton.setAttribute('aria-label', oculta ? 'Ocultar contraseña' : 'Mostrar contraseña');
         });
     });
 }

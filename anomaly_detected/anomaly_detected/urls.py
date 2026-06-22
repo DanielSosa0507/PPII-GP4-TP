@@ -17,17 +17,17 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LogoutView
 from . import views
 from usuarios.views import perfil_view, editar_perfil_view, registro_view, eliminar_cuenta_view
- 
+
 urlpatterns = [
     # PRINCIPAL
     path('', views.index, name='index'),
- 
+
     # ADMINISTRADOR Y AUTENTICACIÓN
     path('admin/', admin.site.urls),
-    path('login/', LoginView.as_view(template_name='login.html'), name='login'),
+    path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(next_page='index'), name='logout'),
     path('registro/', registro_view, name='registro'),
     path('mapa/', views.mapa_view, name='mapa'),

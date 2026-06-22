@@ -2,7 +2,9 @@ from datetime import datetime, timedelta
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView
 from django.contrib import messages
+from django.urls import reverse
 from django.utils import timezone
 from functools import wraps
 
@@ -43,6 +45,20 @@ def admin_required(vista):
 # INICIO SESION
 def login_view(request):
     return render(request, 'login.html')
+
+
+class CustomLoginView(LoginView):
+    """Login estándar de Django, pero a los admins los manda directo
+    al panel de administración en vez de al index."""
+    template_name = 'login.html'
+
+    def get_success_url(self):
+        redirect_to = self.get_redirect_url()
+        if redirect_to:
+            return redirect_to
+        if self.request.user.rol == 'admin':
+            return reverse('panel_admin')
+        return reverse('index')
 
 
 # VOLVER
