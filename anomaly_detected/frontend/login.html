@@ -7,8 +7,10 @@
     <title>Anomaly Detected - Iniciar Sesión</title>
     <script>
         (function () {
-            var hora = new Date().getHours();
-            var esDeDia = hora >= 6 && hora < 18;
+            var manual = localStorage.getItem('temaPreferencia');
+            var esDeDia = manual === 'claro' || manual === 'oscuro'
+                ? manual === 'claro'
+                : (new Date().getHours() >= 6 && new Date().getHours() < 18);
             if (esDeDia) document.documentElement.classList.add('light-theme');
         })();
     </script>

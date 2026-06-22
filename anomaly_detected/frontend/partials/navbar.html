@@ -17,6 +17,9 @@
         {% endif %}
     </nav>
     <div class="nav-user">
+        <button type="button" class="theme-toggle-btn" aria-label="Cambiar entre modo claro y oscuro">
+            <span class="theme-toggle-thumb"></span>
+        </button>
         {% if user.is_authenticated %}
             <a href="{% url 'perfil' %}" class="user-avatar" title="Mi perfil">👤</a>
         {% else %}

@@ -7,8 +7,10 @@
     <title>Anomaly Detected</title>
     <script>
         (function () {
-            var hora = new Date().getHours();
-            var esDeDia = hora >= 6 && hora < 18;
+            var manual = localStorage.getItem('temaPreferencia');
+            var esDeDia = manual === 'claro' || manual === 'oscuro'
+                ? manual === 'claro'
+                : (new Date().getHours() >= 6 && new Date().getHours() < 18);
             if (esDeDia) document.documentElement.classList.add('light-theme');
         })();
     </script>
@@ -18,14 +20,8 @@
     <header class="header">
         <div class="container header-content">
             <div class="logo">
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <ellipse cx="16" cy="14" rx="13" ry="3.2" fill="#2E7D32"/>
-                    <ellipse cx="16" cy="11.5" rx="8" ry="4.5" fill="#4CAF50"/>
-                    <ellipse cx="16" cy="9.5" rx="4" ry="2.6" fill="#A5D6A7"/>
-                    <circle cx="8" cy="14" r="1.4" fill="#2E7D32"/>
-                    <circle cx="16" cy="15.2" r="1.4" fill="#2E7D32"/>
-                    <circle cx="24" cy="14" r="1.4" fill="#2E7D32"/>
-                </svg>
+                <img src="{% static 'img/logo-modo-nocturno.png' %}" alt="Anomaly Detected" class="logo-icon logo-icon-noche">
+                <img src="{% static 'img/logo-modo-diurno.png' %}" alt="Anomaly Detected" class="logo-icon logo-icon-dia">
                 <span>ANOMALY DETECTED</span>
             </div>
             <nav class="nav">
@@ -35,6 +31,9 @@
                 <a href="{% url 'favoritos' %}" class="active">Favoritos</a>
             </nav>
             <div class="header-actions">
+                <button type="button" class="theme-toggle-btn" aria-label="Cambiar entre modo claro y oscuro">
+                    <span class="theme-toggle-thumb"></span>
+                </button>
                 <a href="{% url 'login' %}" class="login-btn">INICIA SESIÓN</a>
             </div>
         </div>
